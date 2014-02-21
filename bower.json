@@ -1,0 +1,22 @@
+{
+  "name": "plyfe-widget",
+  "version": "0.0.0",
+  "authors": [
+    "Séamus O'Connor <seamus.oconnor@pneumaticweb.com>"
+  ],
+  "description": "Plyfe's Embedable Widgets",
+  "main": "widget.js",
+  "keywords": [
+    "plyfe"
+  ],
+  "license": "MIT",
+  "homepage": "plyfe.me",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

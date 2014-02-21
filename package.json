@@ -1,0 +1,26 @@
+{
+  "name": "plyfe-widget",
+  "version": "0.0.0",
+  "description": "Plyfe's embedable widgets",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "plyfe"
+  ],
+  "author": "seamus.oconnor@pneumaticweb.com",
+  "license": "MIT",
+  "repository": "https://github.com/plyfe/plyfe-widgets",
+  "devDependencies": {
+    "requirejs": "~2.1.11",
+    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-uglify": "~0.3.2",
+    "expect.js": "~0.3.1",
+    "mocha": "~1.17.1",
+    "almond": "~0.2.9",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-rename": "~0.1.3"
+  }
+}
