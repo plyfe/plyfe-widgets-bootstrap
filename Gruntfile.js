@@ -20,6 +20,12 @@ module.exports = function(grunt) {
       },
     },
 
+    bump: {
+      options: {
+        updateConfigs: ['pkg'],
+      }
+    },
+
     jshint: {
       options: {
         curly: true,
@@ -83,8 +89,8 @@ module.exports = function(grunt) {
     grunt.registerTask('release' + task, [
       'bump-only:' + task,
       'default',
-      'rename:version', // TODO: find out why pkg.version is the last version not the version after the bump.
-      // 'bump-commit',
+      'rename:version',
+      'bump-commit',
     ]);
   });
 
