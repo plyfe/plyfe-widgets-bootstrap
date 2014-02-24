@@ -12,6 +12,8 @@ define(function(require, exports, module) {
   var api = require('api');
 
   var globalInitFnName = 'plyfeAsyncInit';
+  // NOTE: Have to === check false. Check build_frags/start.frag for the hack.
+  var loadedViaRealAMDLoader = window.Plyfe && window.Plyfe.amd === false;
 
   var Plyfe = {
     widgetClassName: 'plyfe-widget',
@@ -47,9 +49,12 @@ define(function(require, exports, module) {
     if(readyCalled) { return; }
     readyCalled = true;
 
+    // TODO: globalInitFnName won't exist in an AMD load so we default to the
+    // else and auto-load widgets. This is probably not what someone loading the
+    // module via an AMD loader would want
     if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
       window[globalInitFnName](Plyfe);
-    } else if(Plyfe.userToken) { // We can login the user so load widgets
+    } else if(!loadedViaRealAMDLoader && Plyfe.userToken) { // We can login the user so load widgets
       Plyfe.login(function() {
         Plyfe.createWidgets();
       });
