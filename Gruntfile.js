@@ -92,7 +92,7 @@ module.exports = function(grunt) {
       options: {
         updateConfigs: ['pkg'],
         pushTo: 'origin',
-        commitFiles: ['package.json', 'dist/plyfe-widget*.js'],
+        commitFiles: ['-a'],
       }
     },
 
