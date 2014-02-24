@@ -1,6 +1,6 @@
 {
   "name": "plyfe-widget",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Plyfe's embedable widgets",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
