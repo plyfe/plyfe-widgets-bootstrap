@@ -15,17 +15,15 @@ define(function(require, exports, module) {
   function buildQueryString(params, suppressQuestionMark) {
     var qs = [];
 
-    for(var name in params) {
-      if(params.hasOwnProperty(name)) {
-        var value = params[name];
-        if(value === undefined) { continue; }
-        var part = encodeURIComponent(name);
-        if(value !== null) {
-          part += '=' + encodeURIComponent(value);
-        }
-        qs.push(part);
+    objForEach(params, function(name) {
+      var value = params[name];
+      if(value === undefined) { return; }
+      var part = encodeURIComponent(name);
+      if(value !== null) {
+        part += '=' + encodeURIComponent(value);
       }
-    }
+      qs.push(part);
+    });
 
     if(qs.length === 0) { return ''; }
 
@@ -45,10 +43,28 @@ define(function(require, exports, module) {
     isCorsSupported = true;
   }
 
+  function objForEach(obj, callback) {
+    for(var name in obj) {
+      if(obj.hasOwnProperty(name)) {
+        callback(name);
+      }
+    }
+  }
+
+  function keys(obj) {
+    var names = [];
+    objForEach(obj, function(name) {
+      names.push(name);
+    });
+    return names;
+  }
+
   return {
     dataAttr: dataAttr,
     buildQueryString: buildQueryString,
     buildUrl: buildUrl,
-    isCorsSupported: isCorsSupported
+    isCorsSupported: isCorsSupported,
+    objForEach: objForEach,
+    keys: keys
   };
 });
