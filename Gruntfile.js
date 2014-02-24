@@ -4,29 +4,19 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-bump');
-  grunt.loadNpmTasks('grunt-rename');
+  grunt.loadNpmTasks('grunt-mocha');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     license: grunt.file.read('src/copyright.js'),
 
-    clean: ['dist'],
-
-    rename: {
-      version: {
-        src: 'dist/plyfe-widget.js',
-        dest: 'dist/plyfe-widget-<%= pkg.version %>.js'
-      },
-    },
-
-    bump: {
-      options: {
-        updateConfigs: ['pkg'],
-      }
-    },
+    clean: ['tmp', 'dist'],
 
     jshint: {
+      all: ['Gruntfile.js', 'src/**/*.js', 'dist/*.js', 'tests/spec/**/*.js'],
       options: {
         curly: true,
         eqeqeq: true,
@@ -45,7 +35,7 @@ module.exports = function(grunt) {
           baseUrl: "src",
           name: '../node_modules/almond/almond',
           include: ['main'],
-          out: 'dist/plyfe-widget.js',
+          out: 'tmp/plyfe-widget.js',
           wrap: {
             startFile: 'src/build_frags/start.frag',
             endFile: 'src/build_frags/end.frag'
@@ -60,7 +50,7 @@ module.exports = function(grunt) {
       },
       minified: {
         files: {
-          'dist/plyfe-widget.min.js': ['dist/plyfe-widget.js']
+          'tmp/plyfe-widget.min.js': ['tmp/plyfe-widget.js']
         }
       },
       beautiful: {
@@ -71,25 +61,73 @@ module.exports = function(grunt) {
           beautify: true,
         },
         files: {
-          'dist/plyfe-widget.js': ['dist/plyfe-widget.js']
+          'tmp/plyfe-widget.js': ['tmp/plyfe-widget.js']
         }
       }
     },
+
+    watch: {
+      scripts: {
+        files: ['src/**/*.js'],
+        tasks: ['test'],
+      },
+    },
+
+    copy: {
+      version: {
+        files: [
+          {
+            src: 'tmp/plyfe-widget.js',
+            dest: 'dist/plyfe-widget-<%= pkg.version %>.js'
+          },
+          {
+            src: 'tmp/plyfe-widget.min.js',
+            dest: 'dist/plyfe-widget-<%= pkg.version %>.min.js'
+          },
+        ]
+      },
+    },
+
+    bump: {
+      options: {
+        updateConfigs: ['pkg'],
+      }
+    },
+
+    mocha: {
+      options: {
+        run: true
+      },
+      test: {
+        src: ['tests/*.html'],
+      }
+    },
+
   });
 
   grunt.registerTask('default', [
-    'clean',
+    'build',
     'jshint',
+    'copy:version',
+  ]);
+
+  grunt.registerTask('build', [
+    'clean',
     'requirejs',
     'uglify:minified',
-    'uglify:beautiful'
+    'uglify:beautiful',
+  ]);
+
+  grunt.registerTask('test', [
+    'build',
+    'mocha',
   ]);
 
   ['', ':patch', ':minor', ':major', ':build', ':git'].forEach(function(task) {
     grunt.registerTask('release' + task, [
       'bump-only:' + task,
       'default',
-      'rename:version',
+      'copy:version',
       'bump-commit',
     ]);
   });

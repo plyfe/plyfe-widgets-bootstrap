@@ -13,13 +13,6 @@
 }
 </style>
 
-<script src="../node_modules/requirejs/require.js"></script>
-<script>
-require.config({
-  baseUrl: '../src',
-});
-</script>
-
 </head>
 <body>
 
@@ -37,16 +30,17 @@ require.config({
 
 <script src="spec/pollution.js"></script>
 <script src="spec/init.js"></script>
-<script src="spec/widgets.js"></script>
+<!-- <script src="spec/widgets.js"></script> -->
+
+<script src="../tmp/plyfe-widget.js"></script>
 
 <script>
 mocha.checkLeaks();
 mocha.globals(['require']);
 
-require(['main'], function() {
-  if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-  else { mocha.run(); }
-});
+if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+  mocha.run();
+}
 </script>
 
 </body>

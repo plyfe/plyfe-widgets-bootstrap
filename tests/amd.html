@@ -7,6 +7,19 @@
 
 <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
 
+<style type="text/css">
+#mocha {
+  margin: 40px 320px 40px 20px;
+}
+</style>
+
+<script src="../node_modules/requirejs/require.js"></script>
+<script>
+require.config({
+  baseUrl: '../tmp',
+});
+</script>
+
 </head>
 <body>
 
@@ -14,20 +27,24 @@
 
 <div id="mocha"></div>
 
+<div id="widgets">
+  <div class="plyfe-widget" data-width="320"></div>
+</div>
+
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/expect.js/index.js"></script>
 <script>mocha.setup('bdd');</script>
 
-<script src="spec/init-dist.js"></script>
-
-<script src="../dist/plyfe-widget.js"></script>
+<script src="spec/amd.js"></script>
 
 <script>
 mocha.checkLeaks();
 mocha.globals(['require']);
 
-if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-else { mocha.run(); }
+require(['plyfe-widget'], function() {
+  if (window.PHANTOMJS) { mocha.run(); }
+  else { mocha.run(); }
+});
 </script>
 
 </body>

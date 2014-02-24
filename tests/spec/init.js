@@ -1,4 +1,4 @@
-describe('Plyfe Widgets via inline <script>', function() {
+describe('Loaded', function() {
   'use strict';
 
   it('should have loaded', function() {
