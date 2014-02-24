@@ -1,3 +1,5 @@
+var exec = require('child_process').exec;
+
 module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
@@ -125,12 +127,26 @@ module.exports = function(grunt) {
     'mocha',
   ]);
 
+  // NOTE: Need this task to work around grunt-bump's lack of git adding before
+  // committing when running a `grunt release:*`
+  grunt.registerTask('gitadddist', 'Manual Git Add', function() {
+    exec('git add dist/', function(err, stdout, stderr) {
+      if (err) {
+        grunt.fatal('Can not git add files:\n ' + stderr);
+      }
+      grunt.log.ok('git add dist/');
+    });
+  });
+
   ['', ':patch', ':minor', ':major', ':build', ':git'].forEach(function(task) {
     grunt.registerTask('release' + task, [
       'bump-only:' + task,
       'default',
-      'copy:version',
-      // 'bump-commit',
+      // NOTE: We have to manually run a `git add dist/` via the 'gitadddist'
+      // task otherwise grunt-bump won't commit the new versioned plyfe-widget
+      // JS files.
+      'gitadddist',
+      'bump-commit',
     ]);
   });
 
