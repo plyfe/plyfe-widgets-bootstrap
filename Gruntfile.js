@@ -130,7 +130,7 @@ module.exports = function(grunt) {
       'bump-only:' + task,
       'default',
       'copy:version',
-      'bump-commit',
+      // 'bump-commit',
     ]);
   });
 
