@@ -30,8 +30,8 @@ define(function(require, exports, module) {
     return (suppressQuestionMark ? '' : '?') + qs.join('&');
   }
 
-  function buildUrl(protocol, domain, port, path, qs) {
-    var url = protocol + '://' + domain + ((port && port !== 80) ? ':' + port : '');
+  function buildUrl(domain, port, path, qs) {
+    var url = (port === 443 ? 'https' : 'http') + '://' + domain + ((port !== 443 && port !== 80) ? ':' + port : '');
     if(path) {
       url += ('/' + path).replace(/\/{2,}/g, '/') + buildQueryString(qs || { });
     }
@@ -59,12 +59,55 @@ define(function(require, exports, module) {
     return names;
   }
 
+  function getElementsByAClass(className, tag) {
+    if(document.getElementsByClass) {
+      return document.getElementsByClassName(className);
+    } else if(document.querySelectorAll) {
+      return document.querySelectorAll('.' + className);
+    }
+
+    var els = document.getElementsByTagName(tag || '*');
+    var pattern = new RegExp('\\b' + className + '\\b');
+    var foundEls = []; // NOTE: not a NodeList object like above document.*
+
+    for(var i = 0, _len = els.length; i < _len; i++) {
+      if(pattern.test(els[i].className)) {
+        foundEls.push(els[i]);
+      }
+    }
+
+    return foundEls;
+  }
+
+  var addEvent = function(obj, name, fn) {
+    obj.addEventListener(name, fn, false);
+  };
+
+  if(window.attachEvent) {
+    addEvent = function(obj, name, fn) {
+      obj.attachEvent('on' + name, fn);
+    };
+  }
+
+  var removeEvent = function(obj, name, fn) {
+    obj.removeEventListener(name, fn, false);
+  };
+
+  if(window.detachEvent) {
+    removeEvent = function(obj, name, fn) {
+      obj.detachEvent('on' + name, fn);
+    };
+  }
+
   return {
     dataAttr: dataAttr,
     buildQueryString: buildQueryString,
     buildUrl: buildUrl,
     isCorsSupported: isCorsSupported,
     objForEach: objForEach,
-    keys: keys
+    keys: keys,
+    getElementsByAClass: getElementsByAClass,
+    addEvent: addEvent,
+    removeEvent: removeEvent
   };
 });
