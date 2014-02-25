@@ -8,6 +8,8 @@
 define(function(require, exports, module) {
   'use strict';
 
+  var head = document.getElementsByTagName('head')[0];
+
   function dataAttr(el, name, defval) {
     return el.getAttribute('data-' + name) || defval;
   }
@@ -46,7 +48,7 @@ define(function(require, exports, module) {
   function objForEach(obj, callback) {
     for(var name in obj) {
       if(obj.hasOwnProperty(name)) {
-        callback(name);
+        callback(name, obj[name]);
       }
     }
   }
@@ -85,7 +87,12 @@ define(function(require, exports, module) {
 
   if(window.attachEvent) {
     addEvent = function(obj, name, fn) {
-      obj.attachEvent('on' + name, fn);
+      var _fn = fn.__attachEventRef = function() {
+        var e = window.event;
+        e.keyCode = e.which;
+        fn(e);
+      };
+      obj.attachEvent('on' + name, _fn);
     };
   }
 
@@ -95,11 +102,108 @@ define(function(require, exports, module) {
 
   if(window.detachEvent) {
     removeEvent = function(obj, name, fn) {
-      obj.detachEvent('on' + name, fn);
+      obj.detachEvent('on' + name, fn.__attachEventRef);
     };
   }
 
+  // TODO: Use something like this:
+  // https://github.com/dperini/ContentLoaded/blob/master/src/contentloaded.js
+  var readyCallbacks = [];
+  var domLoaded = false;
+  function ready(e) {
+    if(e && e.type === 'readystatechange' && document.readyState !== 'complete') return;
+
+    if(domLoaded) { return; }
+    domLoaded = true;
+
+    removeEvent(window, 'load', ready);
+    removeEvent(document, 'readystatechange', ready);
+    removeEvent(document, 'DOMContentLoaded', ready);
+
+    for(var i = 0; i < readyCallbacks.length; i++) {
+      readyCallbacks[i]();
+    }
+  }
+
+  if(document.readyState === 'complete') {
+    ready();
+  } else {
+    addEvent(window, 'load', ready);
+    addEvent(document, 'readystatechange', ready);
+    addEvent(document, 'DOMContentLoaded', ready);
+  }
+
+  function domReady(callback) {
+    if(domLoaded) {
+      callback();
+    } else {
+      readyCallbacks.push(callback);
+    }
+  }
+
+  function setStyles(el, styles) {
+    objForEach(styles, function(name, value) {
+      el.style[dashedToCamel(name)] = typeof value === 'number' ? value + 'px' : value;
+    });
+  }
+
+  function dashedToCamel(input) {
+    return input.toLowerCase().replace(/-(.)/g, function(match, group1) {
+      return group1.toUpperCase();
+    });
+  }
+
+  function camelToDashed(input) {
+    return input.replace(/([A-Z])/g, function(match, group1) {
+      return '-' + group1.toLowerCase();
+    });
+  }
+
+  function customStyleSheet(css) {
+    var sheet = document.createElement('style');
+    sheet.type = "text/css";
+    sheet.media = 'screen';
+
+    if(sheet.styleSheet) {
+      sheet.styleSheet.cssText = css; //IE only
+    } else {
+      sheet.appendChild(document.createTextNode(css));
+    }
+
+    // insert at the top of <head> so later styles can changed by page css.
+    head.insertBefore(sheet, head.firstChild);
+
+    return sheet;
+  }
+
+  var transitionRuleName = (function() {
+    var tempDiv = document.createElement('div');
+    var vendorPrefixes = [null, 'Moz', 'webkit', 'Webkit', 'Khtml', 'O', 'ms'];
+    for(var i = 0; i < vendorPrefixes.length; i++) {
+      var prefix = vendorPrefixes[i];
+      var prop = !prefix ? 'transition' : prefix + 'Transition';
+      if(typeof tempDiv.style[prop] == 'string') {
+        return prop;
+     }
+    }
+  })();
+
+  function cssTransition(rule) {
+    return transitionRuleName + ': ' + rule + ';';
+  }
+
+  function supportsTransitions() {
+    var b = document.body || document.documentElement;
+    var s = b.style;
+    var p = 'transition';
+    if(typeof s[p] == 'string') {return true; }
+
+    // Tests for vendor specific prop
+    return false;
+  }
+
   return {
+    head: head,
     dataAttr: dataAttr,
     buildQueryString: buildQueryString,
     buildUrl: buildUrl,
@@ -108,6 +212,12 @@ define(function(require, exports, module) {
     keys: keys,
     getElementsByAClass: getElementsByAClass,
     addEvent: addEvent,
-    removeEvent: removeEvent
+    removeEvent: removeEvent,
+    domReady: domReady,
+    setStyles: setStyles,
+    dashedToCamel: dashedToCamel,
+    camelToDashed: camelToDashed,
+    customStyleSheet: customStyleSheet,
+    cssTransition: cssTransition
   };
 });

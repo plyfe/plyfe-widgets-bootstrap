@@ -10,12 +10,14 @@ define(function(require, exports, module) {
 
   var utils = require('utils');
   var api = require('api');
+  var dialog = require('dialog');
 
   var globalInitFnName = 'plyfeAsyncInit';
   // NOTE: Have to use `=== false`. Check build_frags/start.frag for the hack.
   var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
 
   var Plyfe = {
+    theme: undefined,
     widgetClassName: 'plyfe-widget',
     createWidgets: createWidgets,
     createWidget: createWidget,
@@ -42,33 +44,18 @@ define(function(require, exports, module) {
     }
   }
 
-  // TODO: Use something like this:
-  // https://github.com/dperini/ContentLoaded/blob/master/src/contentloaded.js
-  var readyCalled = false;
-  function ready() {
-    if(readyCalled) { return; }
-    readyCalled = true;
-
-    utils.removeEvent(window, 'load', ready);
-    utils.removeEvent(document, 'DOMContentLoaded', ready);
-
-    if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
-      window[globalInitFnName](Plyfe);
-    } else if(Plyfe.userToken) { // We can login the user so load widgets
-      Plyfe.login(function() {
-        Plyfe.createWidgets();
-      });
-    }
-  }
   // The globalInitFnName and the auto-creation of widgets doesn't make sense in
   // the AMD load case.
   if(!loadedViaRealAMDLoader) {
-    if(document.readyState !== 'complete') {
-      utils.addEvent(window, 'load', ready);
-      utils.addEvent(document, 'DOMContentLoaded', ready);
-    } else {
-      ready();
-    }
+    utils.domReady(function() {
+      if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
+        window[globalInitFnName](Plyfe);
+      } else if(Plyfe.userToken) { // We can login the user so load widgets
+        Plyfe.login(function() {
+          Plyfe.createWidgets();
+        });
+      }
+    });
   }
 
   var widgetCount = 0;
@@ -84,7 +71,9 @@ define(function(require, exports, module) {
 
     var path = ['w', this.venue, this.type, this.id];
 
-    var params = {};
+    var params = {
+      theme: Plyfe.theme
+    };
 
     var url = utils.buildUrl('https', Plyfe.domain, Plyfe.port, path.join('/'), params);
 
