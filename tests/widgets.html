@@ -7,6 +7,13 @@
 
 <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
 
+<style type="text/css">
+.plyfe-widget {
+  overflow: hidden;
+  visibility: hidden;
+}
+</style>
+
 </head>
 <body>
 
@@ -14,18 +21,17 @@
 
 <div id="mocha"></div>
 
-<script src="../node_modules/requirejs/require.js"></script>
+<div id="widget-1" class="plyfe-widget" data-width="320" data-venue="r4m-embed" data-type="lb" data-id="4">Widget goes here</div>
+
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/expect.js/index.js"></script>
 <script>mocha.setup('bdd');</script>
 
-<script src="spec/amd.js"></script>
+<script src="spec/widgets.js"></script>
+
+<script src="../tmp/plyfe-widget.js"></script>
 
 <script>
-require.config({
-  baseUrl: '../tmp',
-});
-
 mocha.checkLeaks();
 
 if(navigator.userAgent.indexOf('PhantomJS') < 0) {

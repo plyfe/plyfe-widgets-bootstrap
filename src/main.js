@@ -12,8 +12,8 @@ define(function(require, exports, module) {
   var api = require('api');
 
   var globalInitFnName = 'plyfeAsyncInit';
-  // NOTE: Have to === check false. Check build_frags/start.frag for the hack.
-  var loadedViaRealAMDLoader = window.Plyfe && window.Plyfe.amd === false;
+  // NOTE: Have to use `=== false`. Check build_frags/start.frag for the hack.
+  var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
 
   var Plyfe = {
     widgetClassName: 'plyfe-widget',
@@ -49,20 +49,27 @@ define(function(require, exports, module) {
     if(readyCalled) { return; }
     readyCalled = true;
 
-    // TODO: globalInitFnName won't exist in an AMD load so we default to the
-    // else and auto-load widgets. This is probably not what someone loading the
-    // module via an AMD loader would want
+    utils.removeEvent(window, 'load', ready);
+    utils.removeEvent(document, 'DOMContentLoaded', ready);
+
     if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
       window[globalInitFnName](Plyfe);
-    } else if(!loadedViaRealAMDLoader && Plyfe.userToken) { // We can login the user so load widgets
+    } else if(Plyfe.userToken) { // We can login the user so load widgets
       Plyfe.login(function() {
         Plyfe.createWidgets();
       });
     }
   }
-  utils.addEvent(window, 'load', ready);
-  utils.addEvent(document, 'DOMContentLoaded', ready);
-
+  // The globalInitFnName and the auto-creation of widgets doesn't make sense in
+  // the AMD load case.
+  if(!loadedViaRealAMDLoader) {
+    if(document.readyState !== 'complete') {
+      utils.addEvent(window, 'load', ready);
+      utils.addEvent(document, 'DOMContentLoaded', ready);
+    } else {
+      ready();
+    }
+  }
 
   var widgetCount = 0;
   function Widget(el) {
@@ -79,7 +86,7 @@ define(function(require, exports, module) {
 
     var params = {};
 
-    var url = buildUrl('https', Plyfe.domain, Plyfe.port, path.join('/'), params);
+    var url = utils.buildUrl('https', Plyfe.domain, Plyfe.port, path.join('/'), params);
 
     console.log('widget url:', url);
 
@@ -104,9 +111,9 @@ define(function(require, exports, module) {
   }
 
   function createWidget(el) {
-    if(!el && el.firstChild) { throw new PlyfeError('createWidget() must be called with a DOM element'); }
+    if(!el && el.nodeType === 3) { throw new PlyfeError('createWidget() must be called with a DOM element'); }
     // Be defensive against repeated calls to createWidget()
-    if(el.firstChild.nodeName !== 'iframe') {
+    if(el.firstChild === null || el.firstChild.nodeName !== 'iframe') {
       new Widget(el);
     }
   }

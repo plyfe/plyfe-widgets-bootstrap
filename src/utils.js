@@ -30,8 +30,8 @@ define(function(require, exports, module) {
     return (suppressQuestionMark ? '' : '?') + qs.join('&');
   }
 
-  function buildUrl(domain, port, path, qs) {
-    var url = (port === 443 ? 'https' : 'http') + '://' + domain + ((port !== 443 && port !== 80) ? ':' + port : '');
+  function buildUrl(scheme, domain, port, path, qs) {
+    var url = scheme + '://' + domain + ((port !== 443 && port !== 80) ? ':' + port : '');
     if(path) {
       url += ('/' + path).replace(/\/{2,}/g, '/') + buildQueryString(qs || { });
     }
