@@ -111,7 +111,7 @@ define(function(require, exports, module) {
   var readyCallbacks = [];
   var domLoaded = false;
   function ready(e) {
-    if(e && e.type === 'readystatechange' && document.readyState !== 'complete') return;
+    if(e && e.type === 'readystatechange' && document.readyState !== 'complete') { return; }
 
     if(domLoaded) { return; }
     domLoaded = true;
@@ -182,7 +182,7 @@ define(function(require, exports, module) {
     for(var i = 0; i < vendorPrefixes.length; i++) {
       var prefix = vendorPrefixes[i];
       var prop = !prefix ? 'transition' : prefix + 'Transition';
-      if(typeof tempDiv.style[prop] == 'string') {
+      if(typeof tempDiv.style[prop] === 'string') {
         return prop;
      }
     }
@@ -190,16 +190,6 @@ define(function(require, exports, module) {
 
   function cssTransition(rule) {
     return transitionRuleName + ': ' + rule + ';';
-  }
-
-  function supportsTransitions() {
-    var b = document.body || document.documentElement;
-    var s = b.style;
-    var p = 'transition';
-    if(typeof s[p] == 'string') {return true; }
-
-    // Tests for vendor specific prop
-    return false;
   }
 
   return {

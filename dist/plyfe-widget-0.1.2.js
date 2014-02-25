@@ -8,6 +8,9 @@
     if (typeof define === "function" && define.amd) {
         define([], factory);
     } else {
+        root.Plyfe = {
+            amd: false
+        };
         root.Plyfe = factory();
     }
 })(this, function() {
@@ -264,6 +267,7 @@
     })();
     define("../node_modules/almond/almond", function() {});
     define("utils", [ "require", "exports", "module" ], function(require, exports, module) {
+        var head = document.getElementsByTagName("head")[0];
         function dataAttr(el, name, defval) {
             return el.getAttribute("data-" + name) || defval;
         }
@@ -285,8 +289,8 @@
             }
             return (suppressQuestionMark ? "" : "?") + qs.join("&");
         }
-        function buildUrl(protocol, domain, port, path, qs) {
-            var url = protocol + "://" + domain + (port && port !== 80 ? ":" + port : "");
+        function buildUrl(scheme, domain, port, path, qs) {
+            var url = scheme + "://" + domain + (port !== 443 && port !== 80 ? ":" + port : "");
             if (path) {
                 url += ("/" + path).replace(/\/{2,}/g, "/") + buildQueryString(qs || {});
             }
@@ -299,7 +303,7 @@
         function objForEach(obj, callback) {
             for (var name in obj) {
                 if (obj.hasOwnProperty(name)) {
-                    callback(name);
+                    callback(name, obj[name]);
                 }
             }
         }
@@ -310,13 +314,132 @@
             });
             return names;
         }
+        function getElementsByAClass(className, tag) {
+            if (document.getElementsByClass) {
+                return document.getElementsByClassName(className);
+            } else if (document.querySelectorAll) {
+                return document.querySelectorAll("." + className);
+            }
+            var els = document.getElementsByTagName(tag || "*");
+            var pattern = new RegExp("\\b" + className + "\\b");
+            var foundEls = [];
+            for (var i = 0, _len = els.length; i < _len; i++) {
+                if (pattern.test(els[i].className)) {
+                    foundEls.push(els[i]);
+                }
+            }
+            return foundEls;
+        }
+        var addEvent = function(obj, name, fn) {
+            obj.addEventListener(name, fn, false);
+        };
+        if (window.attachEvent) {
+            addEvent = function(obj, name, fn) {
+                var _fn = fn.__attachEventRef = function() {
+                    var e = window.event;
+                    e.keyCode = e.which;
+                    fn(e);
+                };
+                obj.attachEvent("on" + name, _fn);
+            };
+        }
+        var removeEvent = function(obj, name, fn) {
+            obj.removeEventListener(name, fn, false);
+        };
+        if (window.detachEvent) {
+            removeEvent = function(obj, name, fn) {
+                obj.detachEvent("on" + name, fn.__attachEventRef);
+            };
+        }
+        var readyCallbacks = [];
+        var domLoaded = false;
+        function ready(e) {
+            if (e && e.type === "readystatechange" && document.readyState !== "complete") {
+                return;
+            }
+            if (domLoaded) {
+                return;
+            }
+            domLoaded = true;
+            removeEvent(window, "load", ready);
+            removeEvent(document, "readystatechange", ready);
+            removeEvent(document, "DOMContentLoaded", ready);
+            for (var i = 0; i < readyCallbacks.length; i++) {
+                readyCallbacks[i]();
+            }
+        }
+        if (document.readyState === "complete") {
+            ready();
+        } else {
+            addEvent(window, "load", ready);
+            addEvent(document, "readystatechange", ready);
+            addEvent(document, "DOMContentLoaded", ready);
+        }
+        function domReady(callback) {
+            if (domLoaded) {
+                callback();
+            } else {
+                readyCallbacks.push(callback);
+            }
+        }
+        function setStyles(el, styles) {
+            objForEach(styles, function(name, value) {
+                el.style[dashedToCamel(name)] = typeof value === "number" ? value + "px" : value;
+            });
+        }
+        function dashedToCamel(input) {
+            return input.toLowerCase().replace(/-(.)/g, function(match, group1) {
+                return group1.toUpperCase();
+            });
+        }
+        function camelToDashed(input) {
+            return input.replace(/([A-Z])/g, function(match, group1) {
+                return "-" + group1.toLowerCase();
+            });
+        }
+        function customStyleSheet(css) {
+            var sheet = document.createElement("style");
+            sheet.type = "text/css";
+            sheet.media = "screen";
+            if (sheet.styleSheet) {
+                sheet.styleSheet.cssText = css;
+            } else {
+                sheet.appendChild(document.createTextNode(css));
+            }
+            head.insertBefore(sheet, head.firstChild);
+            return sheet;
+        }
+        var transitionRuleName = function() {
+            var tempDiv = document.createElement("div");
+            var vendorPrefixes = [ null, "Moz", "webkit", "Webkit", "Khtml", "O", "ms" ];
+            for (var i = 0; i < vendorPrefixes.length; i++) {
+                var prefix = vendorPrefixes[i];
+                var prop = !prefix ? "transition" : prefix + "Transition";
+                if (typeof tempDiv.style[prop] === "string") {
+                    return prop;
+                }
+            }
+        }();
+        function cssTransition(rule) {
+            return transitionRuleName + ": " + rule + ";";
+        }
         return {
+            head: head,
             dataAttr: dataAttr,
             buildQueryString: buildQueryString,
             buildUrl: buildUrl,
             isCorsSupported: isCorsSupported,
             objForEach: objForEach,
-            keys: keys
+            keys: keys,
+            getElementsByAClass: getElementsByAClass,
+            addEvent: addEvent,
+            removeEvent: removeEvent,
+            domReady: domReady,
+            setStyles: setStyles,
+            dashedToCamel: dashedToCamel,
+            camelToDashed: camelToDashed,
+            customStyleSheet: customStyleSheet,
+            cssTransition: cssTransition
         };
     });
     define("api", [ "require", "exports", "module", "utils" ], function(require, exports, module) {
@@ -399,17 +522,150 @@
             }, 200);
         };
     });
-    define("main", [ "require", "exports", "module", "utils", "api" ], function(require, exports, module) {
+    define("dialog", [ "require", "exports", "module", "utils" ], function(require, exports, module) {
+        var utils = require("utils");
+        var MODAL_DIALOG_CSS = "" + "#plyfe-modal-container {" + "position: fixed;" + "top: 0;" + "right: 0;" + "bottom: 0;" + "left: 0;" + "visibility: hidden;" + "background-color: transparent;" + utils.cssTransition("background-color 1s, visibility 0s linear 1s") + "}" + "\n" + "#plyfe-modal-container.show {" + "visibility: visible;" + "background-color: rgba(0, 0, 0, 0.5);" + utils.cssTransition("background-color 500ms") + "}" + "\n" + "#plyfe-modal-dialog {" + "position: absolute;" + "top: 20%;" + "left: 50%;" + "margin-left: 150px;" + "width: 300px;" + "opacity: 0;" + "border: 1px solid #DDD;" + "border-radius: 5px;" + "background-color: #EEE;" + utils.cssTransition("opacity 500ms") + "}" + "#plyfe-modal-dialog.ready {" + "opacity: 1" + "}" + "\n" + "#plyfe-modal-iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border: none;" + "overflow: hidden;" + "margin: 1.5%;" + "}";
+        var container = document.createElement("div");
+        container.id = "plyfe-modal-container";
+        var dialog = document.createElement("div");
+        dialog.id = "plyfe-modal-dialog";
+        container.appendChild(dialog);
+        var iframe = document.createElement("iframe");
+        iframe.id = "plyfe-modal-iframe";
+        iframe.allowtransparency = "true";
+        iframe.onload = function() {
+            dialog.className = "ready";
+        };
+        dialog.appendChild(iframe);
+        utils.domReady(function() {
+            document.body.appendChild(container);
+        });
+        utils.customStyleSheet(MODAL_DIALOG_CSS);
+        utils.addEvent(container, "mousedown", function(e) {
+            if (e.target === container) {
+                close();
+            }
+        });
+        utils.addEvent(document, "keyup", function(e) {
+            if (e.keyCode === 27) {
+                close();
+            }
+        });
+        function open(src, width, height) {
+            width = Math.max(Math.min(+width || 320, document.documentElement.clientWidth), 240);
+            height = Math.max(Math.min(+height || 200, document.documentElement.clientWidth), 100);
+            close();
+            container.className = "show";
+            iframe.src = src;
+            utils.setStyles(dialog, {
+                width: width,
+                height: height,
+                marginLeft: width / 2
+            });
+        }
+        function close() {
+            container.className = "";
+            dialog.className = "";
+        }
+        return {
+            open: open,
+            close: close
+        };
+    });
+    define("main", [ "require", "exports", "module", "utils", "api", "dialog" ], function(require, exports, module) {
         var utils = require("utils");
         var api = require("api");
+        var dialog = require("dialog");
+        var globalInitFnName = "plyfeAsyncInit";
+        var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
+        var Plyfe = {
+            theme: undefined,
+            widgetClassName: "plyfe-widget",
+            createWidgets: createWidgets,
+            createWidget: createWidget,
+            login: login
+        };
         function PlyfeError(message) {
             this.name = "PlyfeError";
             this.message = message || "";
         }
         PlyfeError.prototype = Error.prototype;
-        if (!define.amd) {
-            alert("here");
+        var scripts = document.getElementsByTagName("script");
+        for (var i = scripts.length - 1; i >= 0; i--) {
+            var script = scripts[i];
+            if (/\/plyfe-widget.*?\.js(\?|#|$)/.test(script.src)) {
+                Plyfe.userToken = utils.dataAttr(script, "user-token");
+                Plyfe.domain = utils.dataAttr(script, "domain", "plyfe.me");
+                Plyfe.port = +utils.dataAttr(script, "port") || 443;
+                globalInitFnName = utils.dataAttr(script, "init-name", globalInitFnName);
+                break;
+            }
         }
+        if (!loadedViaRealAMDLoader) {
+            utils.domReady(function() {
+                if (window[globalInitFnName] && typeof window[globalInitFnName] === "function") {
+                    window[globalInitFnName](Plyfe);
+                } else if (Plyfe.userToken) {
+                    Plyfe.login(function() {
+                        Plyfe.createWidgets();
+                    });
+                }
+            });
+        }
+        var widgetCount = 0;
+        function Widget(el) {
+            this.el = el;
+            this.venue = utils.dataAttr(el, "venue");
+            this.type = utils.dataAttr(el, "type");
+            this.id = utils.dataAttr(el, "id");
+            if (!this.venue) {
+                throw new PlyfeError("data-venue attribute required");
+            }
+            if (!this.type) {
+                throw new PlyfeError("data-type attribute required");
+            }
+            if (!this.id) {
+                throw new PlyfeError("data-id attribute required");
+            }
+            var path = [ "w", this.venue, this.type, this.id ];
+            var params = {
+                theme: Plyfe.theme
+            };
+            var url = utils.buildUrl("https", Plyfe.domain, Plyfe.port, path.join("/"), params);
+            console.log("widget url:", url);
+            var iframeName = "plyfe-" + ++widgetCount;
+            this.el.innerHTML = "<iframe" + ' name="' + iframeName + '"' + ' scrolling="auto"' + ' frameborder="no"' + ' src="' + url + '"' + ' style="display:block; width:100%; height:100%;"' + ">";
+            this.iframe = this.el.firstChild;
+        }
+        function createWidgets() {
+            var widgets = utils.getElementsByAClass(Plyfe.widgetClassName);
+            for (var i = 0; i < widgets.length; i++) {
+                createWidget(widgets[i]);
+            }
+        }
+        function createWidget(el) {
+            if (!el && el.nodeType === 3) {
+                throw new PlyfeError("createWidget() must be called with a DOM element");
+            }
+            if (el.firstChild === null || el.firstChild.nodeName !== "iframe") {
+                new Widget(el);
+            }
+        }
+        function login(callback) {
+            if (!Plyfe.userToken) {
+                throw new PlyfeError("The Plyfe.userToken must be set before login.");
+            }
+            var options = {
+                withCredentials: true
+            };
+            if (callback) {
+                options.onSuccess = callback;
+            }
+            return makeReq("post", utils.buildApiUrl("/external_sessions/"), {
+                auth_token: Plyfe.userToken
+            }, options);
+        }
+        return Plyfe;
     });
     return require("main");
 });
