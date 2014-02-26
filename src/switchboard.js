@@ -2,9 +2,12 @@ define(function(require, exports, module) {
   'use strict';
 
   var utils = require('utils');
+  var dialog = require('dialog');
+  var widget = require('widget');
 
   var MESSAGE_PREFIX = 'plyfe';
   var ORIGIN = '*';
+
   function pm(win, name, data) {
     if(!name) { throw new TypeError('Argument name required'); }
     // console.log('pm(', win, ',' + name +', ', JSON.stringify(data),')');
@@ -27,12 +30,41 @@ define(function(require, exports, module) {
       var data = JSON.parse(payload.substr(newlinePos + 1)); // +1 is '\n'
       var frames = window.frames;
 
+      routeMessage(name, data, e.source);
+
       // console.log('host recieved data: ', name, ':', data);
-      for(var i = 1; i <= frames.length ; i++) {
-        if(window.frames[i] !== e.source) {
-          pm(window.frames[i], name, data);
-        }
-      }
+    }
+  }
+
+  function routeMessage(name, data, sourceFrame) {
+    switch(name) {
+      case 'dialog:open':
+        dialog.open(data.src, data.width, data.height);
+        break;
+      case 'dialog:close':
+        dialog.close();
+        break;
+
+      case 'sizechanged':
+        widget.forEach(function(wgt) {
+          if(wgt.iframe === sourceFrame) {
+            setStyles(wgt.el, { width: data.width, height: data.height });
+          }
+        });
+        break;
+
+      case 'pusher': // TODO: flesh out pusher:
+        break;
+
+      case 'broadcast':
+        widget.forEach(function(wgt) {
+          if(wgt.iframe !== sourceFrame) {
+            pm(wgt.iframe, name, data);
+          }
+        });
+        break;
+      default:
+        console.warn("Switchboard recieved a unhandled '" + name + "' message", data);
     }
   }
 

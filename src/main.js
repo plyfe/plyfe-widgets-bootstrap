@@ -11,18 +11,11 @@ define(function(require, exports, module) {
   var utils = require('utils');
   var api = require('api');
   var dialog = require('dialog');
+  var widget = require('widget');
 
   var globalInitFnName = 'plyfeAsyncInit';
   // NOTE: Have to use `=== false`. Check build_frags/start.frag for the hack.
   var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
-
-  var Plyfe = {
-    theme: undefined,
-    widgetClassName: 'plyfe-widget',
-    createWidgets: createWidgets,
-    createWidget: createWidget,
-    login: login
-  };
 
   function PlyfeError(message) {
     this.name = 'PlyfeError';
@@ -31,14 +24,16 @@ define(function(require, exports, module) {
   PlyfeError.prototype = Error.prototype;
 
 
+  var userToken, widgetDomain, widgetPort, widgetClassName = 'plyfe-widget';
+
   // Find <script> tag that loaded this code
   var scripts = document.getElementsByTagName('script');
   for(var i = scripts.length - 1; i >= 0; i--) {
     var script = scripts[i];
     if(/\/plyfe-widget.*?\.js(\?|#|$)/.test(script.src)) {
-      Plyfe.userToken = utils.dataAttr(script, 'user-token');
-      Plyfe.domain = utils.dataAttr(script, 'domain', 'plyfe.me');
-      Plyfe.port = +utils.dataAttr(script, 'port') || 443; // '+' casts to int
+      userToken = utils.dataAttr(script, 'user-token');
+      widgetDomain = utils.dataAttr(script, 'domain', 'plyfe.me');
+      widgetPort = +utils.dataAttr(script, 'port') || 443; // '+' casts to int
       globalInitFnName = utils.dataAttr(script, 'init-name', globalInitFnName);
       break;
     }
@@ -49,67 +44,25 @@ define(function(require, exports, module) {
   if(!loadedViaRealAMDLoader) {
     utils.domReady(function() {
       if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
-        window[globalInitFnName](Plyfe);
-      } else if(Plyfe.userToken) { // We can login the user so load widgets
-        Plyfe.login(function() {
-          Plyfe.createWidgets();
+        window[globalInitFnName](externalApi);
+      } else if(externalApi.userToken) { // We can login the user so load widgets
+        login(function() {
+          createWidgets();
         });
       }
     });
   }
 
-  var widgetCount = 0;
-  function Widget(el) {
-    this.el = el;
-    this.venue = utils.dataAttr(el, 'venue');
-    this.type = utils.dataAttr(el, 'type');
-    this.id = utils.dataAttr(el, 'id');
-
-    if(!this.venue) { throw new PlyfeError("data-venue attribute required"); }
-    if(!this.type) { throw new PlyfeError("data-type attribute required"); }
-    if(!this.id) { throw new PlyfeError("data-id attribute required"); }
-
-    var path = ['w', this.venue, this.type, this.id];
-
-    var params = {
-      theme: Plyfe.theme
-    };
-
-    var url = utils.buildUrl('https', Plyfe.domain, Plyfe.port, path.join('/'), params);
-
-    console.log('widget url:', url);
-
-    var iframeName = 'plyfe-' + (++widgetCount);
-    this.el.innerHTML = '<iframe' +
-      ' name="' + iframeName + '"' +
-      ' scrolling="auto"' +
-      ' frameborder="no"' +
-      ' src="' + url + '"' +
-      ' style="display:block; width:100%; height:100%;"' +
-      '>';
-
-    this.iframe = this.el.firstChild;
-  }
-
-  // TODO: look into using https://github.com/dperini/ContentLoaded
   function createWidgets() {
-    var widgets = utils.getElementsByAClass(Plyfe.widgetClassName);
-    for(var i = 0; i < widgets.length; i++) {
-      createWidget(widgets[i]);
-    }
-  }
-
-  function createWidget(el) {
-    if(!el && el.nodeType === 3) { throw new PlyfeError('createWidget() must be called with a DOM element'); }
-    // Be defensive against repeated calls to createWidget()
-    if(el.firstChild === null || el.firstChild.nodeName !== 'iframe') {
-      new Widget(el);
+    var divs = utils.getElementsByAClass(externalApi.widgetClassName);
+    for(var i = 0; i < divs.length; i++) {
+      widget.create(divs[i]);
     }
   }
 
   function login(callback) {
-    if(!Plyfe.userToken) {
-      throw new PlyfeError('The Plyfe.userToken must be set before login.');
+    if(!externalApi.userToken) {
+      throw new PlyfeError('A userToken must be set before login.');
     }
 
     var options = {
@@ -118,8 +71,20 @@ define(function(require, exports, module) {
 
     if(callback) { options.onSuccess = callback; }
 
-    return makeReq('post', utils.buildApiUrl('/external_sessions/'), { auth_token: Plyfe.userToken }, options);
+    return makeReq('post', utils.buildApiUrl('/external_sessions/'), { auth_token: externalApi.userToken }, options);
   }
 
-  return Plyfe;
+  var externalApi = {
+    userToken: userToken,
+    domain: widgetDomain,
+    port: widgetPort,
+    theme: undefined, // undefined = 'default' on the server
+    widgetClassName: widgetClassName,
+    createWidgets: createWidgets,
+    createWidget: widget.create,
+    login: login
+  };
+
+  return externalApi;
+
 });
