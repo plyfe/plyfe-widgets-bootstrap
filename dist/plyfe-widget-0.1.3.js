@@ -572,46 +572,9 @@
             close: close
         };
     });
-    define("main", [ "require", "exports", "module", "utils", "api", "dialog" ], function(require, exports, module) {
+    define("widget", [ "require", "exports", "module", "utils" ], function(require, exports, module) {
         var utils = require("utils");
-        var api = require("api");
-        var dialog = require("dialog");
-        var globalInitFnName = "plyfeAsyncInit";
-        var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
-        var Plyfe = {
-            theme: undefined,
-            widgetClassName: "plyfe-widget",
-            createWidgets: createWidgets,
-            createWidget: createWidget,
-            login: login
-        };
-        function PlyfeError(message) {
-            this.name = "PlyfeError";
-            this.message = message || "";
-        }
-        PlyfeError.prototype = Error.prototype;
-        var scripts = document.getElementsByTagName("script");
-        for (var i = scripts.length - 1; i >= 0; i--) {
-            var script = scripts[i];
-            if (/\/plyfe-widget.*?\.js(\?|#|$)/.test(script.src)) {
-                Plyfe.userToken = utils.dataAttr(script, "user-token");
-                Plyfe.domain = utils.dataAttr(script, "domain", "plyfe.me");
-                Plyfe.port = +utils.dataAttr(script, "port") || 443;
-                globalInitFnName = utils.dataAttr(script, "init-name", globalInitFnName);
-                break;
-            }
-        }
-        if (!loadedViaRealAMDLoader) {
-            utils.domReady(function() {
-                if (window[globalInitFnName] && typeof window[globalInitFnName] === "function") {
-                    window[globalInitFnName](Plyfe);
-                } else if (Plyfe.userToken) {
-                    Plyfe.login(function() {
-                        Plyfe.createWidgets();
-                    });
-                }
-            });
-        }
+        var widgets = [];
         var widgetCount = 0;
         function Widget(el) {
             this.el = el;
@@ -637,23 +600,84 @@
             this.el.innerHTML = "<iframe" + ' name="' + iframeName + '"' + ' scrolling="auto"' + ' frameborder="no"' + ' src="' + url + '"' + ' style="display:block; width:100%; height:100%;"' + ">";
             this.iframe = this.el.firstChild;
         }
-        function createWidgets() {
-            var widgets = utils.getElementsByAClass(Plyfe.widgetClassName);
-            for (var i = 0; i < widgets.length; i++) {
-                createWidget(widgets[i]);
-            }
-        }
         function createWidget(el) {
             if (!el && el.nodeType === 3) {
                 throw new PlyfeError("createWidget() must be called with a DOM element");
             }
             if (el.firstChild === null || el.firstChild.nodeName !== "iframe") {
-                new Widget(el);
+                widgets.push(new Widget(el));
+            }
+        }
+        function destroyWidget(el) {
+            if (el.nodeName !== "iframe") {
+                el = el.firstChild;
+            }
+            if (el && el.nodeName === "iframe") {
+                for (var i = widgets.length - 1; i >= 0; i--) {
+                    var widget = widgets[i];
+                    if (widget.iframe === el) {
+                        widgets.splice(i, 1);
+                        el.parentNode.innerHTML = "";
+                    }
+                }
+            }
+        }
+        function forEach(callback) {
+            for (var i = widgets.length - 1; i >= 0; i--) {
+                callback(widgets[i]);
+            }
+        }
+        return {
+            create: createWidget,
+            distroy: destroyWidget,
+            list: widgets,
+            forEach: forEach
+        };
+    });
+    define("main", [ "require", "exports", "module", "utils", "api", "dialog", "widget" ], function(require, exports, module) {
+        var utils = require("utils");
+        var api = require("api");
+        var dialog = require("dialog");
+        var widget = require("widget");
+        var globalInitFnName = "plyfeAsyncInit";
+        var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
+        function PlyfeError(message) {
+            this.name = "PlyfeError";
+            this.message = message || "";
+        }
+        PlyfeError.prototype = Error.prototype;
+        var userToken, widgetDomain, widgetPort, widgetClassName = "plyfe-widget";
+        var scripts = document.getElementsByTagName("script");
+        for (var i = scripts.length - 1; i >= 0; i--) {
+            var script = scripts[i];
+            if (/\/plyfe-widget.*?\.js(\?|#|$)/.test(script.src)) {
+                userToken = utils.dataAttr(script, "user-token");
+                widgetDomain = utils.dataAttr(script, "domain", "plyfe.me");
+                widgetPort = +utils.dataAttr(script, "port") || 443;
+                globalInitFnName = utils.dataAttr(script, "init-name", globalInitFnName);
+                break;
+            }
+        }
+        if (!loadedViaRealAMDLoader) {
+            utils.domReady(function() {
+                if (window[globalInitFnName] && typeof window[globalInitFnName] === "function") {
+                    window[globalInitFnName](externalApi);
+                } else if (externalApi.userToken) {
+                    login(function() {
+                        createWidgets();
+                    });
+                }
+            });
+        }
+        function createWidgets() {
+            var divs = utils.getElementsByAClass(externalApi.widgetClassName);
+            for (var i = 0; i < divs.length; i++) {
+                widget.create(divs[i]);
             }
         }
         function login(callback) {
-            if (!Plyfe.userToken) {
-                throw new PlyfeError("The Plyfe.userToken must be set before login.");
+            if (!externalApi.userToken) {
+                throw new PlyfeError("A userToken must be set before login.");
             }
             var options = {
                 withCredentials: true
@@ -662,10 +686,20 @@
                 options.onSuccess = callback;
             }
             return makeReq("post", utils.buildApiUrl("/external_sessions/"), {
-                auth_token: Plyfe.userToken
+                auth_token: externalApi.userToken
             }, options);
         }
-        return Plyfe;
+        var externalApi = {
+            userToken: userToken,
+            domain: widgetDomain,
+            port: widgetPort,
+            theme: undefined,
+            widgetClassName: widgetClassName,
+            createWidgets: createWidgets,
+            createWidget: widget.create,
+            login: login
+        };
+        return externalApi;
     });
     return require("main");
 });
