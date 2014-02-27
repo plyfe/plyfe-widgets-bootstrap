@@ -271,29 +271,35 @@
         function dataAttr(el, name, defval) {
             return el.getAttribute("data-" + name) || defval;
         }
-        function buildQueryString(params, suppressQuestionMark) {
+        function buildQueryString(params) {
             var qs = [];
-            objForEach(params, function(name) {
+            objForEach(params || {}, function(name) {
                 var value = params[name];
                 if (value === undefined) {
                     return;
                 }
-                var part = encodeURIComponent(name);
+                var part = encodeURIComponent(camelToDashed(name));
                 if (value !== null) {
                     part += "=" + encodeURIComponent(value);
                 }
                 qs.push(part);
             });
-            if (qs.length === 0) {
-                return "";
-            }
-            return (suppressQuestionMark ? "" : "?") + qs.join("&");
+            return qs.join("&");
         }
-        function buildUrl(scheme, domain, port, path, qs) {
-            var url = scheme + "://" + domain + (port !== 443 && port !== 80 ? ":" + port : "");
-            if (path) {
-                url += ("/" + path).replace(/\/{2,}/g, "/") + buildQueryString(qs || {});
+        function buildUrl(scheme, domain, port, path, params) {
+            switch (scheme) {
+              case "http":
+                port = !port || port === 80 ? "" : ":" + port;
+                break;
+
+              case "https":
+                port = !port || port === 443 ? "" : ":" + port;
+                break;
             }
+            var url = scheme + "://" + (domain || "") + port;
+            var qs = buildQueryString(params);
+            url += (path ? "/" + path : "").replace(/\/{2,}/g, "/");
+            url += (qs ? "?" : "") + qs;
             return url;
         }
         var isCorsSupported = false;
@@ -307,14 +313,7 @@
                 }
             }
         }
-        function keys(obj) {
-            var names = [];
-            objForEach(obj, function(name) {
-                names.push(name);
-            });
-            return names;
-        }
-        function getElementsByAClass(className, tag) {
+        function getElementsByClassName(className, tag) {
             if (document.getElementsByClass) {
                 return document.getElementsByClassName(className);
             } else if (document.querySelectorAll) {
@@ -384,7 +383,7 @@
         }
         function setStyles(el, styles) {
             objForEach(styles, function(name, value) {
-                el.style[dashedToCamel(name)] = typeof value === "number" ? value + "px" : value;
+                el.style[name] = typeof value === "number" ? value + "px" : value;
             });
         }
         function dashedToCamel(input) {
@@ -397,10 +396,14 @@
                 return "-" + group1.toLowerCase();
             });
         }
-        function customStyleSheet(css) {
+        function customStyleSheet(css, options) {
+            options = options || {};
             var sheet = document.createElement("style");
             sheet.type = "text/css";
             sheet.media = "screen";
+            if (options.id) {
+                sheet.id = options.id;
+            }
             if (sheet.styleSheet) {
                 sheet.styleSheet.cssText = css;
             } else {
@@ -430,8 +433,7 @@
             buildUrl: buildUrl,
             isCorsSupported: isCorsSupported,
             objForEach: objForEach,
-            keys: keys,
-            getElementsByAClass: getElementsByAClass,
+            getElementsByClassName: getElementsByClassName,
             addEvent: addEvent,
             removeEvent: removeEvent,
             domReady: domReady,
@@ -450,7 +452,7 @@
             options = options || {};
             method = method.toUpperCase();
             url = utils.buildApiUrl(url);
-            var req = isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
+            var req = utils.isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
             req.onreadystatechange = function() {
                 if (req.readyState === 4) {
                     switch (req.status) {
@@ -471,7 +473,7 @@
                 }
             };
             if (method === "GET" && data) {
-                url += utils.buildQueryString(data);
+                url += "?" + utils.buildQueryString(data);
             }
             req.open(method, url, true);
             if (options.withCredentials) {
@@ -480,7 +482,7 @@
             if (method === "POST" && data) {
                 req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 if (typeof data === "object") {
-                    data = utils.buildQueryString(data, true);
+                    data = utils.buildQueryString(data);
                 }
             }
             req.send(data ? data : null);
@@ -514,7 +516,7 @@
             if (data) {
                 params.http_data = data;
             }
-            this.el.src = this.url + utils.buildQueryString(params) + "&" + data;
+            this.el.src = this.url + "?" + utils.buildQueryString(params) + "&" + data;
             head.appendChild(this.el);
             setTimeout(function() {
                 try {
@@ -536,6 +538,9 @@
     define("dialog", [ "require", "exports", "module", "utils" ], function(require, exports, module) {
         var utils = require("utils");
         var MODAL_DIALOG_CSS = "" + "#plyfe-modal-container {" + "position: fixed;" + "top: 0;" + "right: 0;" + "bottom: 0;" + "left: 0;" + "visibility: hidden;" + "background-color: transparent;" + utils.cssTransition("background-color 1s, visibility 0s linear 1s") + "}" + "\n" + "#plyfe-modal-container.show {" + "visibility: visible;" + "background-color: rgba(0, 0, 0, 0.5);" + utils.cssTransition("background-color 500ms") + "}" + "\n" + "#plyfe-modal-dialog {" + "position: absolute;" + "top: 20%;" + "left: 50%;" + "margin-left: 150px;" + "width: 300px;" + "opacity: 0;" + "border: 1px solid #DDD;" + "border-radius: 5px;" + "background-color: #EEE;" + utils.cssTransition("opacity 500ms") + "}" + "#plyfe-modal-dialog.ready {" + "opacity: 1" + "}" + "\n" + "#plyfe-modal-iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border: none;" + "overflow: hidden;" + "margin: 1.5%;" + "}";
+        utils.customStyleSheet(MODAL_DIALOG_CSS, {
+            id: "plyfe-dialog-css"
+        });
         var container = document.createElement("div");
         container.id = "plyfe-modal-container";
         var dialog = document.createElement("div");
@@ -551,7 +556,6 @@
         utils.domReady(function() {
             document.body.appendChild(container);
         });
-        utils.customStyleSheet(MODAL_DIALOG_CSS);
         utils.addEvent(container, "mousedown", function(e) {
             if (e.target === container) {
                 close();
@@ -587,33 +591,42 @@
         var utils = require("utils");
         var widgets = [];
         var widgetCount = 0;
+        var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + utils.cssTransition("opacity 300s") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + utils.cssTransition("opacity 300ms") + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
+        utils.customStyleSheet(WIDGET_CSS, {
+            id: "plyfe-widget-css"
+        });
         function Widget(el) {
             this.el = el;
             this.venue = utils.dataAttr(el, "venue");
             this.type = utils.dataAttr(el, "type");
             this.id = utils.dataAttr(el, "id");
             if (!this.venue) {
-                throw new PlyfeError("data-venue attribute required");
+                throw new Error("data-venue attribute required");
             }
             if (!this.type) {
-                throw new PlyfeError("data-type attribute required");
+                throw new Error("data-type attribute required");
             }
             if (!this.id) {
-                throw new PlyfeError("data-id attribute required");
+                throw new Error("data-id attribute required");
             }
             var path = [ "w", this.venue, this.type, this.id ];
             var params = {
-                theme: Plyfe.theme
+                theme: Plyfe.theme,
+                width: utils.dataAttr(el, "width"),
+                maxWidth: utils.dataAttr(el, "max-width"),
+                minWidth: utils.dataAttr(el, "min-width"),
+                height: utils.dataAttr(el, "height"),
+                maxHeight: utils.dataAttr(el, "max-height"),
+                minHeight: utils.dataAttr(el, "min-height")
             };
             var url = utils.buildUrl("https", Plyfe.domain, Plyfe.port, path.join("/"), params);
-            console.log("widget url:", url);
             var iframeName = "plyfe-" + ++widgetCount;
-            this.el.innerHTML = "<iframe" + ' name="' + iframeName + '"' + ' scrolling="auto"' + ' frameborder="no"' + ' src="' + url + '"' + ' style="display:block; width:100%; height:100%;"' + ">";
+            this.el.innerHTML = "<iframe" + ' name="' + iframeName + '"' + ' src="' + url + '"' + ">";
             this.iframe = this.el.firstChild;
         }
         function createWidget(el) {
             if (!el && el.nodeType === 3) {
-                throw new PlyfeError("createWidget() must be called with a DOM element");
+                throw new Error("createWidget() must be called with a DOM element");
             }
             if (el.firstChild === null || el.firstChild.nodeName !== "iframe") {
                 widgets.push(new Widget(el));
@@ -684,7 +697,7 @@
               case "sizechanged":
                 widget.forEach(function(wgt) {
                     if (wgt.iframe === sourceFrame) {
-                        setStyles(wgt.el, {
+                        utils.setStyles(wgt.el, {
                             width: data.width,
                             height: data.height
                         });
@@ -749,7 +762,7 @@
             });
         }
         function createWidgets() {
-            var divs = utils.getElementsByAClass(externalApi.widgetClassName);
+            var divs = utils.getElementsByClassName(externalApi.widgetClassName);
             for (var i = 0; i < divs.length; i++) {
                 widget.create(divs[i]);
             }
