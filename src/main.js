@@ -1,8 +1,8 @@
 /*
-* @license plyfe-widget Copyright (c) 2014, Plyfe Inc.
+* @license plyfe-widgets Copyright (c) 2014, Plyfe Inc.
 * All Rights Reserved.
 * Available via the MIT license.
-* see: http://github.com/plyfe/plyfe-widget/LICENSE for details
+* see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
 define(function(require, exports, module) {
@@ -12,6 +12,7 @@ define(function(require, exports, module) {
   var api = require('api');
   var dialog = require('dialog');
   var widget = require('widget');
+  var switchboard = require('switchboard');
 
   var globalInitFnName = 'plyfeAsyncInit';
   // NOTE: Have to use `=== false`. Check build_frags/start.frag for the hack.
@@ -30,7 +31,7 @@ define(function(require, exports, module) {
   var scripts = document.getElementsByTagName('script');
   for(var i = scripts.length - 1; i >= 0; i--) {
     var script = scripts[i];
-    if(/\/plyfe-widget.*?\.js(\?|#|$)/.test(script.src)) {
+    if(/\/plyfe-widgets.*?\.js(\?|#|$)/.test(script.src)) {
       userToken = utils.dataAttr(script, 'user-token');
       widgetDomain = utils.dataAttr(script, 'domain', 'plyfe.me');
       widgetPort = +utils.dataAttr(script, 'port') || 443; // '+' casts to int
@@ -71,7 +72,7 @@ define(function(require, exports, module) {
 
     if(callback) { options.onSuccess = callback; }
 
-    return makeReq('post', utils.buildApiUrl('/external_sessions/'), { auth_token: externalApi.userToken }, options);
+    return api.POST('/external_sessions/', { auth_token: externalApi.userToken }, options);
   }
 
   var externalApi = {

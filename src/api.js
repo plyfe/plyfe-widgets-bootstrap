@@ -1,3 +1,10 @@
+/*
+* @license plyfe-widgets Copyright (c) 2014, Plyfe Inc.
+* All Rights Reserved.
+* Available via the MIT license.
+* see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
+*/
+
 define(function(require, exports, module) {
   'use strict';
 
@@ -8,9 +15,10 @@ define(function(require, exports, module) {
   var _undefined;
   var head = document.getElementsByTagName('head')[0];
 
-  function makeReq(method, url, data, options) {
+  function makeRequest(method, url, data, options) {
     options = options || {};
     method = method.toUpperCase();
+    url = utils.buildApiUrl(url);
 
     var req = isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
 
@@ -114,6 +122,19 @@ define(function(require, exports, module) {
         head.removeChild(self.el);
       } catch(e) {}
     }, 200); // wait 200ms then remove the <script>
+  };
+
+  function post(path, data, options) {
+    return makeRequest.call(null, 'post', path, data, options);
+  }
+
+  function get(path, data, options) {
+    return makeRequest.call(null, 'get', path, data, options);
+  }
+
+  return {
+    POST: post,
+    GET: get
   };
 
 });

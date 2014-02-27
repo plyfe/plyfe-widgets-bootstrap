@@ -10,6 +10,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-mocha');
+  grunt.loadNpmTasks('grunt-text-replace');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -37,7 +38,7 @@ module.exports = function(grunt) {
           baseUrl: "src",
           name: '../node_modules/almond/almond',
           include: ['main'],
-          out: 'tmp/plyfe-widget.js',
+          out: 'tmp/plyfe-widgets.js',
           wrap: {
             startFile: 'src/build_frags/start.frag',
             endFile: 'src/build_frags/end.frag'
@@ -52,7 +53,7 @@ module.exports = function(grunt) {
       },
       minified: {
         files: {
-          'tmp/plyfe-widget.min.js': ['tmp/plyfe-widget.js']
+          'tmp/plyfe-widgets.min.js': ['tmp/plyfe-widgets.js']
         }
       },
       beautiful: {
@@ -63,7 +64,7 @@ module.exports = function(grunt) {
           beautify: true,
         },
         files: {
-          'tmp/plyfe-widget.js': ['tmp/plyfe-widget.js']
+          'tmp/plyfe-widgets.js': ['tmp/plyfe-widgets.js']
         }
       }
     },
@@ -79,12 +80,12 @@ module.exports = function(grunt) {
       version: {
         files: [
           {
-            src: 'tmp/plyfe-widget.js',
-            dest: 'dist/plyfe-widget-<%= pkg.version %>.js'
+            src: 'tmp/plyfe-widgets.js',
+            dest: 'dist/plyfe-widgets-<%= pkg.version %>.js'
           },
           {
-            src: 'tmp/plyfe-widget.min.js',
-            dest: 'dist/plyfe-widget-<%= pkg.version %>.min.js'
+            src: 'tmp/plyfe-widgets.min.js',
+            dest: 'dist/plyfe-widgets-<%= pkg.version %>.min.js'
           },
         ]
       },
@@ -92,9 +93,21 @@ module.exports = function(grunt) {
 
     bump: {
       options: {
+        files: ['package.json', 'bower.json'],
         updateConfigs: ['pkg'],
         pushTo: 'origin',
         commitFiles: ['-a'],
+      }
+    },
+
+    replace: {
+      bower: {
+        src: ['bower.json'],
+        overwrite: true,                 // overwrite matched source files
+        replacements: [{
+          from: "%VERSION%",
+          to: "<%= pkg.version %>"
+        }]
       }
     },
 
@@ -142,8 +155,9 @@ module.exports = function(grunt) {
     grunt.registerTask('release' + task, [
       'bump-only:' + task,
       'default',
+      'replace:bower',
       // NOTE: We have to manually run a `git add dist/` via the 'gitadddist'
-      // task otherwise grunt-bump won't commit the new versioned plyfe-widget
+      // task otherwise grunt-bump won't commit the new versioned plyfe-widgets
       // JS files.
       'gitadddist',
       'bump-commit',

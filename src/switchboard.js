@@ -1,3 +1,10 @@
+/*
+* @license plyfe-widgets Copyright (c) 2014, Plyfe Inc.
+* All Rights Reserved.
+* Available via the MIT license.
+* see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
+*/
+
 define(function(require, exports, module) {
   'use strict';
 
@@ -56,13 +63,14 @@ define(function(require, exports, module) {
       case 'pusher': // TODO: flesh out pusher:
         break;
 
-      case 'broadcast':
+      case 'broadcast': // TODO: This might not be needed - remove?
         widget.forEach(function(wgt) {
           if(wgt.iframe !== sourceFrame) {
             pm(wgt.iframe, name, data);
           }
         });
         break;
+
       default:
         console.warn("Switchboard recieved a unhandled '" + name + "' message", data);
     }
