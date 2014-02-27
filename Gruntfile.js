@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 
     watch: {
       scripts: {
-        files: ['src/**/*.js'],
+        files: ['src/**/*.js', 'tests/spec/**/*.js'],
         tasks: ['test'],
       },
     },
@@ -100,7 +100,7 @@ module.exports = function(grunt) {
 
     mocha: {
       options: {
-        run: true,
+        run: false,
       },
       test: {
         src: ['tests/*.html'],

@@ -68,10 +68,9 @@ define(function(require, exports, module) {
     }
   }
 
-  addEvent(window, 'message', gotMessage);
+  utils.addEvent(window, 'message', gotMessage);
 
   return {
-    init: init,
     postMessage: pm
   };
 });

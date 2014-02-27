@@ -14,20 +14,29 @@
 
 <div id="mocha"></div>
 
+<script src="../node_modules/requirejs/require.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/expect.js/index.js"></script>
 <script>mocha.setup('bdd');</script>
 
-<script src="spec/pollution.js"></script>
-<script src="spec/init.js"></script>
-
-<script src="../tmp/plyfe-widget.js" data-domain="different.domain.com" data-port="8080" data-init-name="customInitCall"></script>
-
 <script>
+require.config({
+  baseUrl: '../src',
+  paths: {
+    spec: '../tests/spec'
+  }
+});
+
 mocha.checkLeaks();
 
+var specs = [
+  'spec/switchboard'
+];
+
 window.onload = function() {
-  mocha.run();
+  require(specs, function() {
+    mocha.run();
+  })
 }
 </script>
 

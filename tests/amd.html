@@ -28,9 +28,12 @@ require.config({
 
 mocha.checkLeaks();
 
-if(navigator.userAgent.indexOf('PhantomJS') < 0) {
-  mocha.run();
+window.onload = function() {
+  require(['plyfe-widget'], function() {
+    mocha.run();
+  });
 }
+
 </script>
 
 </body>
