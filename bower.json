@@ -1,11 +1,11 @@
 {
   "name": "plyfe-widgets",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "authors": [
     "Séamus O'Connor <seamus.oconnor@pneumaticweb.com>"
   ],
   "description": "Plyfe's Embedable Widgets",
-  "main": "dist/plyfe-widgets-%VERSION%.js",
+  "main": "dist/plyfe-widgets-0.1.4.js",
   "keywords": [
     "plyfe"
   ],
