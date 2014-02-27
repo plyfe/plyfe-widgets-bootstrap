@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.7
+ * Plyfe Widgets Library v0.1.8
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -793,7 +793,7 @@
         if (!loadedViaRealAMDLoader) {
             utils.domReady(function() {
                 if (window[globalInitFnName] && typeof window[globalInitFnName] === "function") {
-                    window[globalInitFnName]();
+                    setTimeout(window[globalInitFnName], 0);
                 } else if (settings.api.userToken) {
                     login(function() {
                         createWidgets();
