@@ -17,7 +17,7 @@ define(function(require, exports, module) {
   function buildQueryString(params) {
     var qs = [];
 
-    objForEach(params, function(name) {
+    objForEach(params || {}, function(name) {
       var value = params[name];
       if(value === undefined) { return; }
       var part = encodeURIComponent(camelToDashed(name));
@@ -27,15 +27,13 @@ define(function(require, exports, module) {
       qs.push(part);
     });
 
-    if(qs.length === 0) { return ''; }
-
     return qs.join('&');
   }
 
   function buildUrl(scheme, domain, port, path, qs) {
     var url = scheme + '://' + domain + ((port !== 443 && port !== 80) ? ':' + port : '');
     if(path) {
-      url += ('/' + path).replace(/\/{2,}/g, '/') + '?' + buildQueryString(qs || { });
+      url += ('/' + path).replace(/\/{2,}/g, '/') + '?' + buildQueryString(qs);
     }
     return url;
   }
