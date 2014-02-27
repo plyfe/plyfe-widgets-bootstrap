@@ -1,6 +1,11 @@
 /*!
-* @license plyfe-widgets Copyright (c) 2014, Plyfe Inc.
-* All Rights Reserved.
-* Available via the MIT license.
-* see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
-*/
+ * Plyfe Widgets Library v<%= pkg.version %>
+ * http://plyfe.com/
+ *
+ * Copyright 2014, Plyfe Inc.
+ *
+ * Available via the MIT license.
+ * http://github.com/plyfe/plyfe-widgets/LICENSE
+ *
+ * Date: <%= grunt.template.today("yyyy-mm-dd") %>
+ */

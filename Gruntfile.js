@@ -9,19 +9,17 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-mocha');
-  grunt.loadNpmTasks('grunt-text-replace');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     license: grunt.file.read('src/build_frags/copyright.js'),
 
-    clean: ['tmp', 'dist'],
+    clean: ['dist'],
 
     jshint: {
-      all: ['Gruntfile.js', 'src/**/*.js', 'dist/*.js', 'tests/spec/**/*.js'],
+      all: ['Gruntfile.js', 'src/**/*.js', 'tests/spec/**/*.js'],
 
       options: {
         jshintrc: true
@@ -35,7 +33,7 @@ module.exports = function(grunt) {
           baseUrl: "src",
           name: '../node_modules/almond/almond',
           include: ['main'],
-          out: 'tmp/plyfe-widgets.js',
+          out: 'dist/plyfe-widgets.js',
           wrap: {
             startFile: 'src/build_frags/start.frag',
             endFile: 'src/build_frags/end.frag'
@@ -50,7 +48,7 @@ module.exports = function(grunt) {
       },
       minified: {
         files: {
-          'tmp/plyfe-widgets.min.js': ['tmp/plyfe-widgets.js']
+          'dist/plyfe-widgets.min.js': ['dist/plyfe-widgets.js']
         }
       },
       beautiful: {
@@ -61,7 +59,7 @@ module.exports = function(grunt) {
           beautify: true,
         },
         files: {
-          'tmp/plyfe-widgets.js': ['tmp/plyfe-widgets.js']
+          'dist/plyfe-widgets.js': ['dist/plyfe-widgets.js']
         }
       }
     },
@@ -73,38 +71,12 @@ module.exports = function(grunt) {
       },
     },
 
-    copy: {
-      version: {
-        files: [
-          {
-            src: 'tmp/plyfe-widgets.js',
-            dest: 'dist/plyfe-widgets-<%= pkg.version %>.js'
-          },
-          {
-            src: 'tmp/plyfe-widgets.min.js',
-            dest: 'dist/plyfe-widgets-<%= pkg.version %>.min.js'
-          },
-        ]
-      },
-    },
-
     bump: {
       options: {
         files: ['package.json', 'bower.json'],
         updateConfigs: ['pkg'],
         pushTo: 'origin',
         commitFiles: ['-a'],
-      }
-    },
-
-    replace: {
-      bower: {
-        src: ['bower.json'],
-        overwrite: true,                 // overwrite matched source files
-        replacements: [{
-          from: "%VERSION%",
-          to: "<%= pkg.version %>"
-        }]
       }
     },
 
@@ -120,16 +92,15 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', [
-    'build',
     'jshint',
-    'copy:version',
+    'build',
+    'uglify:beautiful', // beautify first
+    'uglify:minified'
   ]);
 
   grunt.registerTask('build', [
     'clean',
     'requirejs',
-    'uglify:minified',
-    'uglify:beautiful',
   ]);
 
   grunt.registerTask('test', [
@@ -137,26 +108,10 @@ module.exports = function(grunt) {
     'mocha',
   ]);
 
-  // NOTE: Need this task to work around grunt-bump's lack of git adding before
-  // committing when running a `grunt release:*`
-  grunt.registerTask('gitadddist', 'Manual Git Add', function() {
-    exec('git add dist/', function(err, stdout, stderr) {
-      if (err) {
-        grunt.fatal('Can not git add files:\n ' + stderr);
-      }
-      grunt.log.ok('git add dist/');
-    });
-  });
-
   ['', ':patch', ':minor', ':major', ':build', ':git'].forEach(function(task) {
     grunt.registerTask('release' + task, [
       'bump-only:' + task,
       'default',
-      'replace:bower',
-      // NOTE: We have to manually run a `git add dist/` via the 'gitadddist'
-      // task otherwise grunt-bump won't commit the new versioned plyfe-widgets
-      // JS files.
-      'gitadddist',
       'bump-commit',
     ]);
   });
