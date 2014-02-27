@@ -43,7 +43,7 @@ define(function(require, exports, module) {
     };
 
     if(method === 'GET' && data) {
-      url += utils.buildQueryString(data);
+      url += '?' + utils.buildQueryString(data);
     }
 
     req.open(method, url, true);
@@ -56,7 +56,7 @@ define(function(require, exports, module) {
       req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
 
       if(typeof data === 'object') {
-        data = utils.buildQueryString(data, true);
+        data = utils.buildQueryString(data);
       }
     }
 
@@ -109,10 +109,10 @@ define(function(require, exports, module) {
       params.http_data = data;
     }
 
-    // NOTE: We are slapping the as a manual QS param here because we don't have
-    // code inspecting the http_data parameter above yet.
+    // NOTE: We are slapping the data on as a manual QS param here because we
+    // don't have code inspecting the http_data parameter above yet.
     // TODO: Remove this hack in the future.
-    this.el.src = this.url + utils.buildQueryString(params) + '&' + data;
+    this.el.src = this.url + '?' + utils.buildQueryString(params) + '&' + data;
 
     head.appendChild(this.el);
 

@@ -14,7 +14,7 @@ define(function(require, exports, module) {
     return el.getAttribute('data-' + name) || defval;
   }
 
-  function buildQueryString(params, suppressQuestionMark) {
+  function buildQueryString(params) {
     var qs = [];
 
     objForEach(params, function(name) {
@@ -29,13 +29,13 @@ define(function(require, exports, module) {
 
     if(qs.length === 0) { return ''; }
 
-    return (suppressQuestionMark ? '' : '?') + qs.join('&');
+    return qs.join('&');
   }
 
   function buildUrl(scheme, domain, port, path, qs) {
     var url = scheme + '://' + domain + ((port !== 443 && port !== 80) ? ':' + port : '');
     if(path) {
-      url += ('/' + path).replace(/\/{2,}/g, '/') + buildQueryString(qs || { });
+      url += ('/' + path).replace(/\/{2,}/g, '/') + '?' + buildQueryString(qs || { });
     }
     return url;
   }
