@@ -24,6 +24,7 @@
         // Mocha & ExpectJS
         "describe",
         "it",
+        "xit",
         "expect"
     ],
 

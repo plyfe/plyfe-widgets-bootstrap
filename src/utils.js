@@ -30,11 +30,25 @@ define(function(require, exports, module) {
     return qs.join('&');
   }
 
-  function buildUrl(scheme, domain, port, path, qs) {
-    var url = scheme + '://' + domain + ((port !== 443 && port !== 80) ? ':' + port : '');
-    if(path) {
-      url += ('/' + path).replace(/\/{2,}/g, '/') + '?' + buildQueryString(qs);
+  function buildUrl(scheme, domain, port, path, params) {
+    switch(scheme) {
+      case 'http':
+        port = !port || port === 80 ? '': ':' + port;
+        break;
+      case 'https':
+        port = !port || port === 443 ? '': ':' + port;
+        break;
     }
+
+    var url = scheme + '://' + (domain || '') + port;
+    var qs = buildQueryString(params);
+
+    // remove double '//' from url
+    url += (path ? '/' + path : '').replace(/\/{2,}/g, '/');
+
+    // If there is querystring data then prepend a '?'
+    url += (qs ? '?' : '') + qs;
+
     return url;
   }
 
