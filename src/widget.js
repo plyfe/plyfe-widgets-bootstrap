@@ -14,6 +14,27 @@ define(function(require, exports, module) {
   var widgets = [];
   var widgetCount = 0;
 
+   var WIDGET_CSS = '' +
+    '.plyfe-widget {' +
+      'opacity: 0;' +
+      utils.cssTransition('opacity 300s') +
+    '}' +
+    '\n' +
+    '.plyfe-widget.ready {' +
+      'opacity: 1;' +
+      utils.cssTransition('opacity 300ms') +
+    '}' +
+    '\n' +
+    '.plyfe-widget iframe {' +
+      'display: block;' +
+      'width: 100%;' +
+      'height: 100%;' +
+      'border-width: 0;' + // NOTE: has to be border-width for IE
+      'overflow: hidden;' +
+    '}';
+
+  utils.customStyleSheet(WIDGET_CSS, { id: 'plyfe-widget-css' });
+
   function Widget(el) {
     this.el = el;
     this.venue = utils.dataAttr(el, 'venue');
@@ -27,20 +48,21 @@ define(function(require, exports, module) {
     var path = ['w', this.venue, this.type, this.id];
 
     var params = {
-      theme: Plyfe.theme
+      theme: Plyfe.theme,
+      width:     utils.dataAttr(el, 'width'),
+      maxWidth:  utils.dataAttr(el, 'max-width'),
+      minWidth:  utils.dataAttr(el, 'min-width'),
+      height:    utils.dataAttr(el, 'height'),
+      maxHeight: utils.dataAttr(el, 'max-height'),
+      minHeight: utils.dataAttr(el, 'min-height')
     };
 
     var url = utils.buildUrl('https', Plyfe.domain, Plyfe.port, path.join('/'), params);
 
-    console.log('widget url:', url);
-
     var iframeName = 'plyfe-' + (++widgetCount);
     this.el.innerHTML = '<iframe' +
       ' name="' + iframeName + '"' +
-      ' scrolling="auto"' +
-      ' frameborder="no"' +
       ' src="' + url + '"' +
-      ' style="display:block; width:100%; height:100%;"' +
       '>';
 
     this.iframe = this.el.firstChild;

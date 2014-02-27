@@ -14,14 +14,13 @@ define(function(require, exports, module) {
   // altered.
   var _undefined;
   var head = document.getElementsByTagName('head')[0];
-  var isCorsSupported = window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest();
 
   function makeRequest(method, url, data, options) {
     options = options || {};
     method = method.toUpperCase();
     url = utils.buildApiUrl(url);
 
-    var req = isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
+    var req = utils.isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
 
     req.onreadystatechange = function() {
       if(req.readyState === 4) {

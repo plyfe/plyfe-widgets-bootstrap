@@ -20,7 +20,7 @@ define(function(require, exports, module) {
     objForEach(params, function(name) {
       var value = params[name];
       if(value === undefined) { return; }
-      var part = encodeURIComponent(name);
+      var part = encodeURIComponent(camelToDashed(name));
       if(value !== null) {
         part += '=' + encodeURIComponent(value);
       }
@@ -159,10 +159,14 @@ define(function(require, exports, module) {
     });
   }
 
-  function customStyleSheet(css) {
+  function customStyleSheet(css, options) {
+    options = options || {};
     var sheet = document.createElement('style');
     sheet.type = "text/css";
     sheet.media = 'screen';
+    if(options.id) {
+      sheet.id = options.id;
+    }
 
     if(sheet.styleSheet) {
       sheet.styleSheet.cssText = css; //IE only

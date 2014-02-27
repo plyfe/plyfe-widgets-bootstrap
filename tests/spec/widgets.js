@@ -8,7 +8,7 @@ describe('Widget created', function() {
     Plyfe.createWidgets();
     var iframe = document.querySelector('#widget-1 > iframe');
     expect(iframe).to.not.be(null);
-    expect(iframe.src).to.be('https://plyfe.me/w/r4m-embed/lb/4');
+    expect(iframe.src).to.be('https://plyfe.me/w/r4m-embed/lb/4?max-width=480');
   });
 
 });

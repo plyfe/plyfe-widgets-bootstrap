@@ -16,7 +16,7 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    license: grunt.file.read('src/copyright.js'),
+    license: grunt.file.read('src/build_frags/copyright.js'),
 
     clean: ['tmp', 'dist'],
 
@@ -68,7 +68,7 @@ module.exports = function(grunt) {
 
     watch: {
       scripts: {
-        files: ['src/**/*.js', 'tests/spec/**/*.js'],
+        files: ['src/**/*.js', 'tests/**/*'],
         tasks: ['test'],
       },
     },

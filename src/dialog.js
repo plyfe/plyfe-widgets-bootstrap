@@ -53,6 +53,8 @@ define(function(require, exports, module) {
       'margin: 1.5%;' +
     '}';
 
+  utils.customStyleSheet(MODAL_DIALOG_CSS, { id: 'plyfe-dialog-css' });
+
   var container = document.createElement('div');
   container.id = 'plyfe-modal-container';
 
@@ -71,8 +73,6 @@ define(function(require, exports, module) {
   utils.domReady(function() {
     document.body.appendChild(container);
   });
-
-  utils.customStyleSheet(MODAL_DIALOG_CSS);
 
   utils.addEvent(container, 'mousedown', function(e) {
     if(e.target === container) { // only direct clicks on bg close
