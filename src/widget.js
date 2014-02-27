@@ -10,6 +10,7 @@ define(function(require, exports, module) {
   'use strict';
 
   var utils = require('utils');
+  var settings = require('settings');
 
   var widgets = [];
   var widgetCount = 0;
@@ -41,6 +42,10 @@ define(function(require, exports, module) {
     this.type = utils.dataAttr(el, 'type');
     this.id = utils.dataAttr(el, 'id');
 
+    var scheme = utils.dataAttr(el, 'scheme', settings.api.scheme);
+    var domain = utils.dataAttr(el, 'domain', settings.api.domain);
+    var port   = utils.dataAttr(el, 'port', settings.api.port);
+
     if(!this.venue) { throw new Error("data-venue attribute required"); }
     if(!this.type) { throw new Error("data-type attribute required"); }
     if(!this.id) { throw new Error("data-id attribute required"); }
@@ -48,7 +53,7 @@ define(function(require, exports, module) {
     var path = ['w', this.venue, this.type, this.id];
 
     var params = {
-      theme: Plyfe.theme,
+      theme:     settings.widget.theme,
       width:     utils.dataAttr(el, 'width'),
       maxWidth:  utils.dataAttr(el, 'max-width'),
       minWidth:  utils.dataAttr(el, 'min-width'),
@@ -57,7 +62,7 @@ define(function(require, exports, module) {
       minHeight: utils.dataAttr(el, 'min-height')
     };
 
-    var url = utils.buildUrl('https', Plyfe.domain, Plyfe.port, path.join('/'), params);
+    var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
     var iframeName = 'plyfe-' + (++widgetCount);
     this.el.innerHTML = '<iframe' +

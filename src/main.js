@@ -9,6 +9,7 @@ define(function(require, exports, module) {
   'use strict';
 
   var utils = require('utils');
+  var settings = require('settings');
   var api = require('api');
   var dialog = require('dialog');
   var widget = require('widget');
@@ -32,9 +33,10 @@ define(function(require, exports, module) {
   for(var i = scripts.length - 1; i >= 0; i--) {
     var script = scripts[i];
     if(/\/plyfe-widgets.*?\.js(\?|#|$)/.test(script.src)) {
-      userToken = utils.dataAttr(script, 'user-token');
-      widgetDomain = utils.dataAttr(script, 'domain', 'plyfe.me');
-      widgetPort = +utils.dataAttr(script, 'port') || 443; // '+' casts to int
+      settings.api.userToken = utils.dataAttr(script, 'user-token', null);
+      settings.api.scheme = utils.dataAttr(script, 'scheme', settings.api.scheme);
+      settings.api.domain = utils.dataAttr(script, 'domain', settings.api.domain);
+      settings.api.port = +utils.dataAttr(script, 'port') || settings.api.port; // '+' casts to int
       globalInitFnName = utils.dataAttr(script, 'init-name', globalInitFnName);
       break;
     }
@@ -45,8 +47,8 @@ define(function(require, exports, module) {
   if(!loadedViaRealAMDLoader) {
     utils.domReady(function() {
       if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
-        window[globalInitFnName](externalApi);
-      } else if(externalApi.userToken) { // We can login the user so load widgets
+        window[globalInitFnName]();
+      } else if(settings.api.userToken) { // We can login the user so load widgets
         login(function() {
           createWidgets();
         });
@@ -55,14 +57,18 @@ define(function(require, exports, module) {
   }
 
   function createWidgets() {
-    var divs = utils.getElementsByClassName(externalApi.widgetClassName);
+    var divs = utils.getElementsByClassName(settings.widget.className);
     for(var i = 0; i < divs.length; i++) {
       widget.create(divs[i]);
     }
   }
 
+  function createWidget(el) {
+    return widget.create(el);
+  }
+
   function login(callback) {
-    if(!externalApi.userToken) {
+    if(!settings.api.userToken) {
       throw new PlyfeError('A userToken must be set before login.');
     }
 
@@ -72,20 +78,14 @@ define(function(require, exports, module) {
 
     if(callback) { options.onSuccess = callback; }
 
-    return api.POST('/external_sessions/', { auth_token: externalApi.userToken }, options);
+    return api.post('/external_sessions/', { auth_token: settings.api.userToken }, options);
   }
 
-  var externalApi = {
-    userToken: userToken,
-    domain: widgetDomain,
-    port: widgetPort,
-    theme: undefined, // undefined = 'default' on the server
-    widgetClassName: widgetClassName,
+  return {
+    settings: settings,
     createWidgets: createWidgets,
-    createWidget: widget.create,
-    login: login
+    createWidget: createWidget,
+    login: login,
   };
-
-  return externalApi;
 
 });

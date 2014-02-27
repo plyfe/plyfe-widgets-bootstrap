@@ -18,10 +18,15 @@
 <script src="../node_modules/expect.js/index.js"></script>
 <script>mocha.setup('bdd');</script>
 
+<script src="../tmp/plyfe-widgets.js"
+  data-scheme="file"
+  data-domain="different.domain.com"
+  data-port="8080"
+  data-init-name="customInitCall"
+  ></script>
+
 <script src="spec/pollution.js"></script>
 <script src="spec/init.js"></script>
-
-<script src="../tmp/plyfe-widgets.js" data-domain="different.domain.com" data-port="8080" data-init-name="customInitCall"></script>
 
 <script>
 mocha.checkLeaks();

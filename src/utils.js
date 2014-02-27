@@ -9,6 +9,7 @@ define(function(require, exports, module) {
   'use strict';
 
   var head = document.getElementsByTagName('head')[0];
+  var _undefined;
 
   function dataAttr(el, name, defval) {
     return el.getAttribute('data-' + name) || defval;
@@ -19,7 +20,7 @@ define(function(require, exports, module) {
 
     objForEach(params || {}, function(name) {
       var value = params[name];
-      if(value === undefined) { return; }
+      if(value === _undefined) { return; }
       var part = encodeURIComponent(camelToDashed(name));
       if(value !== null) {
         part += '=' + encodeURIComponent(value);
@@ -200,6 +201,17 @@ define(function(require, exports, module) {
     return transitionRuleName + ': ' + rule + ';';
   }
 
+  function uniqueString(size) {
+    size = +size || 0;
+    var s = '';
+    while(s.length < size) {
+      s += Math.random()
+        .toString(36) // convert to base 36 using a-z0-9
+        .substring(2); // chop of leading '0.' from Math.random
+    }
+    return s.substr(0, size);
+  }
+
   return {
     head: head,
     dataAttr: dataAttr,
@@ -215,6 +227,7 @@ define(function(require, exports, module) {
     dashedToCamel: dashedToCamel,
     camelToDashed: camelToDashed,
     customStyleSheet: customStyleSheet,
-    cssTransition: cssTransition
+    cssTransition: cssTransition,
+    uniqueString: uniqueString
   };
 });

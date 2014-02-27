@@ -9,15 +9,19 @@ describe('Loaded', function() {
   'use strict';
 
   it('should have loaded', function() {
-    expect(window.Plyfe).to.be.ok();
+    expect(Plyfe).to.be.ok();
   });
 
   it('should have changed the default domain', function() {
-    expect(Plyfe.domain).to.be('different.domain.com');
+    expect(Plyfe.settings.api.domain).to.be('different.domain.com');
   });
 
   it('should have changed the default port', function() {
-    expect(Plyfe.port).to.be(8080);
+    expect(Plyfe.settings.api.port).to.be(8080);
+  });
+
+  it('should have changed the default URL scheme', function() {
+    expect(Plyfe.settings.api.scheme).to.be('file');
   });
 
   it('should have changed the default global init callback', function(done) {
@@ -28,7 +32,7 @@ describe('Loaded', function() {
     if(initCallbackCalled) {
       done();
     } else {
-      window.customInitCall = function() { done(); };
+      window.customInitCall = done;
     }
   });
 

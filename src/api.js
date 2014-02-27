@@ -9,16 +9,20 @@ define(function(require, exports, module) {
   'use strict';
 
   var utils = require('utils');
+  var settings = require('settings');
 
   // Use a local undefined variable instead of global in case undefined was
   // altered.
   var _undefined;
-  var head = document.getElementsByTagName('head')[0];
 
-  function makeRequest(method, url, data, options) {
+  function buildApiUrl(path) {
+    return utils.buildUrl(settings.api.scheme, settings.api.domain, settings.api.port, path);
+  }
+
+  function makeApiRequest(method, path, data, options) {
     options = options || {};
     method = method.toUpperCase();
-    url = utils.buildApiUrl(url);
+    var url = buildApiUrl(path);
 
     var req = utils.isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
 
@@ -43,10 +47,10 @@ define(function(require, exports, module) {
     };
 
     if(method === 'GET' && data) {
-      url += '?' + utils.buildQueryString(data);
+      url += (url.indexOf('?') >= 0 ? '&' : '?') + utils.buildQueryString(data);
     }
 
-    req.open(method, url, true);
+    req.open(method, url);
 
     if(options.withCredentials) {
       req.withCredentials = true;
@@ -61,12 +65,14 @@ define(function(require, exports, module) {
     }
 
     req.send(data ? data : null);
+
+    return req;
   }
 
   // XHR like interface for JSONP
-  function JSONPRequest() {
+  function JSONPRequest(callbackName) {
     this.el = document.createElement('script');
-    this.uniqueCallbackName = 'plyfeJsonPCallback_' + Math.random().toString(36).substring(2);
+    this.uniqueCallbackName = callbackName || 'plyfeJsonPCallback_' + utils.uniqueString(10);
   }
 
   JSONPRequest.prototype.setRequestHeader = function() { };
@@ -114,27 +120,29 @@ define(function(require, exports, module) {
     // TODO: Remove this hack in the future.
     this.el.src = this.url + '?' + utils.buildQueryString(params) + '&' + data;
 
-    head.appendChild(this.el);
+    utils.head.appendChild(this.el);
 
     setTimeout(function() {
       // Using a try/catch just in the element has already been removed.
       try {
-        head.removeChild(self.el);
+        utils.head.removeChild(self.el);
       } catch(e) {}
     }, 200); // wait 200ms then remove the <script>
   };
 
-  function post(path, data, options) {
-    return makeRequest.call(null, 'post', path, data, options);
+  function get(path, data, options) {
+    return makeApiRequest.call(null, 'get', path, data, options);
   }
 
-  function get(path, data, options) {
-    return makeRequest.call(null, 'get', path, data, options);
+  function post(path, data, options) {
+    return makeApiRequest.call(null, 'post', path, data, options);
   }
 
   return {
-    POST: post,
-    GET: get
+    get: get,
+    post: post,
+    JSONPRequest: JSONPRequest,
+    buildApiUrl: buildApiUrl
   };
 
 });
