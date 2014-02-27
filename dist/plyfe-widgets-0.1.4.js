@@ -1,5 +1,5 @@
 /*!
-* @license plyfe-widget Copyright (c) 2014, Plyfe Inc.
+* @license plyfe-widgets Copyright (c) 2014, Plyfe Inc.
 * All Rights Reserved.
 * Available via the MIT license.
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
@@ -446,9 +446,10 @@
         var utils = require("utils");
         var _undefined;
         var head = document.getElementsByTagName("head")[0];
-        function makeReq(method, url, data, options) {
+        function makeRequest(method, url, data, options) {
             options = options || {};
             method = method.toUpperCase();
+            url = utils.buildApiUrl(url);
             var req = isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
             req.onreadystatechange = function() {
                 if (req.readyState === 4) {
@@ -520,6 +521,16 @@
                     head.removeChild(self.el);
                 } catch (e) {}
             }, 200);
+        };
+        function post(path, data, options) {
+            return makeRequest.call(null, "post", path, data, options);
+        }
+        function get(path, data, options) {
+            return makeRequest.call(null, "get", path, data, options);
+        }
+        return {
+            POST: post,
+            GET: get
         };
     });
     define("dialog", [ "require", "exports", "module", "utils" ], function(require, exports, module) {
@@ -634,11 +645,79 @@
             forEach: forEach
         };
     });
-    define("main", [ "require", "exports", "module", "utils", "api", "dialog", "widget" ], function(require, exports, module) {
+    define("switchboard", [ "require", "exports", "module", "utils", "dialog", "widget" ], function(require, exports, module) {
+        var utils = require("utils");
+        var dialog = require("dialog");
+        var widget = require("widget");
+        var MESSAGE_PREFIX = "plyfe";
+        var ORIGIN = "*";
+        function pm(win, name, data) {
+            if (!name) {
+                throw new TypeError("Argument name required");
+            }
+            win.postMessage("plyfe:" + name + "\n" + JSON.stringify(data), ORIGIN);
+        }
+        function gotMessage(e) {
+            if (!window.JSON) {
+                return;
+            }
+            var payload = e.data;
+            var messageForUs = e.origin === ORIGIN && payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
+            if (messageForUs) {
+                var newlinePos = payload.indexOf("\n", MESSAGE_PREFIX.length + 1);
+                var name = payload.substr(MESSAGE_PREFIX.length + 1, newlinePos);
+                var data = JSON.parse(payload.substr(newlinePos + 1));
+                var frames = window.frames;
+                routeMessage(name, data, e.source);
+            }
+        }
+        function routeMessage(name, data, sourceFrame) {
+            switch (name) {
+              case "dialog:open":
+                dialog.open(data.src, data.width, data.height);
+                break;
+
+              case "dialog:close":
+                dialog.close();
+                break;
+
+              case "sizechanged":
+                widget.forEach(function(wgt) {
+                    if (wgt.iframe === sourceFrame) {
+                        setStyles(wgt.el, {
+                            width: data.width,
+                            height: data.height
+                        });
+                    }
+                });
+                break;
+
+              case "pusher":
+                break;
+
+              case "broadcast":
+                widget.forEach(function(wgt) {
+                    if (wgt.iframe !== sourceFrame) {
+                        pm(wgt.iframe, name, data);
+                    }
+                });
+                break;
+
+              default:
+                console.warn("Switchboard recieved a unhandled '" + name + "' message", data);
+            }
+        }
+        utils.addEvent(window, "message", gotMessage);
+        return {
+            postMessage: pm
+        };
+    });
+    define("main", [ "require", "exports", "module", "utils", "api", "dialog", "widget", "switchboard" ], function(require, exports, module) {
         var utils = require("utils");
         var api = require("api");
         var dialog = require("dialog");
         var widget = require("widget");
+        var switchboard = require("switchboard");
         var globalInitFnName = "plyfeAsyncInit";
         var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
         function PlyfeError(message) {
@@ -650,7 +729,7 @@
         var scripts = document.getElementsByTagName("script");
         for (var i = scripts.length - 1; i >= 0; i--) {
             var script = scripts[i];
-            if (/\/plyfe-widget.*?\.js(\?|#|$)/.test(script.src)) {
+            if (/\/plyfe-widgets.*?\.js(\?|#|$)/.test(script.src)) {
                 userToken = utils.dataAttr(script, "user-token");
                 widgetDomain = utils.dataAttr(script, "domain", "plyfe.me");
                 widgetPort = +utils.dataAttr(script, "port") || 443;
@@ -685,7 +764,7 @@
             if (callback) {
                 options.onSuccess = callback;
             }
-            return makeReq("post", utils.buildApiUrl("/external_sessions/"), {
+            return api.POST("/external_sessions/", {
                 auth_token: externalApi.userToken
             }, options);
         }
