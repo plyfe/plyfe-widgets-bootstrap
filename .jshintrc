@@ -25,7 +25,8 @@
         "describe",
         "it",
         "xit",
-        "expect"
+        "expect",
+        "beforeEach"
     ],
 
 

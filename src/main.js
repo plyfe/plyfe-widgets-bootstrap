@@ -55,7 +55,7 @@ define(function(require, exports, module) {
   }
 
   function createWidgets() {
-    var divs = utils.getElementsByAClass(externalApi.widgetClassName);
+    var divs = utils.getElementsByClassName(externalApi.widgetClassName);
     for(var i = 0; i < divs.length; i++) {
       widget.create(divs[i]);
     }

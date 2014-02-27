@@ -65,15 +65,7 @@ define(function(require, exports, module) {
     }
   }
 
-  function keys(obj) {
-    var names = [];
-    objForEach(obj, function(name) {
-      names.push(name);
-    });
-    return names;
-  }
-
-  function getElementsByAClass(className, tag) {
+  function getElementsByClassName(className, tag) {
     if(document.getElementsByClass) {
       return document.getElementsByClassName(className);
     } else if(document.querySelectorAll) {
@@ -155,7 +147,7 @@ define(function(require, exports, module) {
 
   function setStyles(el, styles) {
     objForEach(styles, function(name, value) {
-      el.style[dashedToCamel(name)] = typeof value === 'number' ? value + 'px' : value;
+      el.style[name] = typeof value === 'number' ? value + 'px' : value;
     });
   }
 
@@ -215,8 +207,7 @@ define(function(require, exports, module) {
     buildUrl: buildUrl,
     isCorsSupported: isCorsSupported,
     objForEach: objForEach,
-    keys: keys,
-    getElementsByAClass: getElementsByAClass,
+    getElementsByClassName: getElementsByClassName,
     addEvent: addEvent,
     removeEvent: removeEvent,
     domReady: domReady,
