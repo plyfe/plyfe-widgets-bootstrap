@@ -1,7 +1,7 @@
 define(['switchboard', 'utils'], function(switchboard, utils) {
+  'use strict';
 
   describe('Switchboard', function() {
-    'use strict';
 
     it('should listen for plyfe messages', function(done) {
       utils.addEvent(window, 'message', function(e) {
@@ -9,7 +9,7 @@ define(['switchboard', 'utils'], function(switchboard, utils) {
         done();
       });
 
-      postMessage('testing', '*');
+      window.postMessage('testing', '*');
     });
   });
 

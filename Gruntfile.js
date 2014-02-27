@@ -1,6 +1,8 @@
 var exec = require('child_process').exec;
 
+/*global module */
 module.exports = function(grunt) {
+  'use strict';
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -20,14 +22,9 @@ module.exports = function(grunt) {
 
     jshint: {
       all: ['Gruntfile.js', 'src/**/*.js', 'dist/*.js', 'tests/spec/**/*.js'],
+
       options: {
-        curly: true,
-        eqeqeq: true,
-        eqnull: true,
-        browser: true,
-        globals: {
-          jQuery: true
-        },
+        jshintrc: true
       },
     },
 

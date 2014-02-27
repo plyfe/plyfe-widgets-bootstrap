@@ -55,7 +55,7 @@ define(function(require, exports, module) {
       case 'sizechanged':
         widget.forEach(function(wgt) {
           if(wgt.iframe === sourceFrame) {
-            setStyles(wgt.el, { width: data.width, height: data.height });
+            utils.setStyles(wgt.el, { width: data.width, height: data.height });
           }
         });
         break;

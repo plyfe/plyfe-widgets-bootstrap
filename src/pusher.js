@@ -5,10 +5,24 @@
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
+/*global Pusher */
 define(function(require, exports, module) {
   'use strict';
 
-  return {
+  // TODO: load pusher.js async from their CDN. Store incoming listen requests
+  // until pusher.js is loaded.
 
+  var pusher = new Pusher();
+
+  function listen(channelName, eventName, callback) {
+    var channel = pusher.channel(channelName);
+    if(!channel) {
+      channel = pusher.subscribe(channelName);
+    }
+    channel.bind(eventName, callback);
+  }
+
+  return {
+    listen: listen
   };
 });

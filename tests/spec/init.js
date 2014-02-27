@@ -1,8 +1,10 @@
 var initCallbackCalled = false;
 window.customInitCall = function() {
+  'use strict';
   initCallbackCalled = true;
 };
 
+/*global Plyfe */
 describe('Loaded', function() {
   'use strict';
 

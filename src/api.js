@@ -14,6 +14,7 @@ define(function(require, exports, module) {
   // altered.
   var _undefined;
   var head = document.getElementsByTagName('head')[0];
+  var isCorsSupported = window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest();
 
   function makeRequest(method, url, data, options) {
     options = options || {};

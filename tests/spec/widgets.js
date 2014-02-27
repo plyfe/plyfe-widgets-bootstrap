@@ -1,3 +1,5 @@
+/*global Plyfe */
+
 describe('Widget created', function() {
   'use strict';
 

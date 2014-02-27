@@ -3,6 +3,7 @@
 
 // Add stuff to the Object.prototype to mess up simple `for in`  loops
 Object.prototype.foobar = function() {
+  'use strict';
   return 'foobar';
 };
 

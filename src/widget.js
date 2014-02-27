@@ -5,6 +5,7 @@
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
+/*global Plyfe */
 define(function(require, exports, module) {
   'use strict';
 
@@ -19,9 +20,9 @@ define(function(require, exports, module) {
     this.type = utils.dataAttr(el, 'type');
     this.id = utils.dataAttr(el, 'id');
 
-    if(!this.venue) { throw new PlyfeError("data-venue attribute required"); }
-    if(!this.type) { throw new PlyfeError("data-type attribute required"); }
-    if(!this.id) { throw new PlyfeError("data-id attribute required"); }
+    if(!this.venue) { throw new Error("data-venue attribute required"); }
+    if(!this.type) { throw new Error("data-type attribute required"); }
+    if(!this.id) { throw new Error("data-id attribute required"); }
 
     var path = ['w', this.venue, this.type, this.id];
 
@@ -46,7 +47,7 @@ define(function(require, exports, module) {
   }
 
   function createWidget(el) {
-    if(!el && el.nodeType === 3) { throw new PlyfeError('createWidget() must be called with a DOM element'); }
+    if(!el && el.nodeType === 3) { throw new Error('createWidget() must be called with a DOM element'); }
     // Be defensive against repeated calls to createWidget()
     if(el.firstChild === null || el.firstChild.nodeName !== 'iframe') {
       widgets.push(new Widget(el));
