@@ -47,7 +47,11 @@ define(function(require, exports, module) {
   if(!loadedViaRealAMDLoader) {
     utils.domReady(function() {
       if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
-        window[globalInitFnName]();
+        // NOTE: Have to use setTimeout to make sure that the rest of the
+        // main.js executes first before we call the callback. If we don't then
+        // there is a race condition where the window.Plyfe object won't exist
+        // yet.
+        setTimeout(window[globalInitFnName], 0);
       } else if(settings.api.userToken) { // We can login the user so load widgets
         login(function() {
           createWidgets();
