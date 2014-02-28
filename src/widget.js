@@ -18,12 +18,11 @@ define(function(require, exports, module) {
    var WIDGET_CSS = '' +
     '.plyfe-widget {' +
       'opacity: 0;' +
-      utils.cssTransition('opacity 300s') +
+      utils.cssTransition('opacity 300ms') +
     '}' +
     '\n' +
     '.plyfe-widget.ready {' +
       'opacity: 1;' +
-      utils.cssTransition('opacity 300ms') +
     '}' +
     '\n' +
     '.plyfe-widget iframe {' +
@@ -65,12 +64,13 @@ define(function(require, exports, module) {
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
     var iframeName = 'plyfe-' + (++widgetCount);
-    this.el.innerHTML = '<iframe' +
-      ' name="' + iframeName + '"' +
-      ' src="' + url + '"' +
-      '>';
-
-    this.iframe = this.el.firstChild;
+    var iframe = document.createElement('iframe');
+    iframe.onload = function() { iframe.parentNode.className += ' ready'; };
+    iframe.name = iframeName;
+    iframe.src = url;
+    this.el.innerHTML = '';
+    this.el.appendChild(iframe);
+    this.iframe = iframe;
   }
 
   function createWidget(el) {
