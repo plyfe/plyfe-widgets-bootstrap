@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.8
+ * Plyfe Widgets Library v0.1.9
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets/LICENSE
  *
- * Date: 2014-02-27
+ * Date: 2014-02-28
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -626,7 +626,7 @@
         var settings = require("settings");
         var widgets = [];
         var widgetCount = 0;
-        var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + utils.cssTransition("opacity 300s") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + utils.cssTransition("opacity 300ms") + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
+        var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + utils.cssTransition("opacity 300ms") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
         utils.customStyleSheet(WIDGET_CSS, {
             id: "plyfe-widget-css"
         });
@@ -659,8 +659,15 @@
             };
             var url = utils.buildUrl(scheme, domain, port, path.join("/"), params);
             var iframeName = "plyfe-" + ++widgetCount;
-            this.el.innerHTML = "<iframe" + ' name="' + iframeName + '"' + ' src="' + url + '"' + ">";
-            this.iframe = this.el.firstChild;
+            var iframe = document.createElement("iframe");
+            iframe.onload = function() {
+                iframe.parentNode.className += " ready";
+            };
+            iframe.name = iframeName;
+            iframe.src = url;
+            this.el.innerHTML = "";
+            this.el.appendChild(iframe);
+            this.iframe = iframe;
         }
         function createWidget(el) {
             if (!el && el.nodeType === 3) {
