@@ -1,6 +1,6 @@
 {
   "name": "plyfe-widgets",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Plyfe's embedable widgets",
   "scripts": {
     "test": "grunt test"
