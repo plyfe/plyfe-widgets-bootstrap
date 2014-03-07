@@ -52,7 +52,7 @@ define(function(require, exports, module) {
     var path = ['w', this.venue, this.type, this.id];
 
     var params = {
-      theme:     settings.widget.theme,
+      theme:     utils.dataAttr(el, 'theme', settings.widget.theme),
       width:     utils.dataAttr(el, 'width'),
       maxWidth:  utils.dataAttr(el, 'max-width'),
       minWidth:  utils.dataAttr(el, 'min-width'),
@@ -60,6 +60,15 @@ define(function(require, exports, module) {
       maxHeight: utils.dataAttr(el, 'max-height'),
       minHeight: utils.dataAttr(el, 'min-height')
     };
+
+    var THEME_PREFIX = 'data-theme-';
+
+    for(var i = el.attributes.length - 1; i >= 0; i--) {
+      var attr = el.attributes[i];
+      if(attr.name.indexOf(THEME_PREFIX) === 0) { // only look for data-theme- attrs
+        params[attr.name.substr(THEME_PREFIX.length)] = attr.value;
+      }
+    }
 
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 

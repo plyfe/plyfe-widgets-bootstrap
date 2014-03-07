@@ -16,7 +16,8 @@ define(function(require, exports, module) {
       userToken: null
     },
     widget: {
-      className: 'plyfe-widget'
+      className: 'plyfe-widget',
+      theme: null
     }
   };
 

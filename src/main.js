@@ -37,6 +37,9 @@ define(function(require, exports, module) {
       settings.api.scheme = utils.dataAttr(script, 'scheme', settings.api.scheme);
       settings.api.domain = utils.dataAttr(script, 'domain', settings.api.domain);
       settings.api.port = +utils.dataAttr(script, 'port') || settings.api.port; // '+' casts to int
+
+      settings.widget.theme = utils.dataAttr(script, 'theme');
+
       globalInitFnName = utils.dataAttr(script, 'init-name', globalInitFnName);
       break;
     }
