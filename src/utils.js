@@ -61,7 +61,8 @@ define(function(require, exports, module) {
   function objForEach(obj, callback) {
     for(var name in obj) {
       if(obj.hasOwnProperty(name)) {
-        callback(name, obj[name]);
+        var ret = callback(name, obj[name]);
+        if(ret === null) { return; } // allow breaking from loop
       }
     }
   }
@@ -153,13 +154,13 @@ define(function(require, exports, module) {
   }
 
   function dashedToCamel(input) {
-    return input.toLowerCase().replace(/-(.)/g, function(match, group1) {
+    return (input + '').replace(/-(.)/g, function(match, group1) {
       return group1.toUpperCase();
     });
   }
 
   function camelToDashed(input) {
-    return input.replace(/([A-Z])/g, function(match, group1) {
+    return (input + '').replace(/([A-Z])/g, function(match, group1) {
       return '-' + group1.toLowerCase();
     });
   }
@@ -185,20 +186,35 @@ define(function(require, exports, module) {
     return sheet;
   }
 
-  var transitionRuleName = (function() {
-    var tempDiv = document.createElement('div');
-    var vendorPrefixes = [null, 'Moz', 'webkit', 'Webkit', 'Khtml', 'O', 'ms'];
-    for(var i = 0; i < vendorPrefixes.length; i++) {
-      var prefix = vendorPrefixes[i];
-      var prop = !prefix ? 'transition' : prefix + 'Transition';
-      if(typeof tempDiv.style[prop] === 'string') {
-        return prop;
-     }
-    }
-  })();
+  var vendorPrefixMap = {
+    '': '',
+    'Moz-': '-moz-',
+    'webkit-': '-webkit-',
+    'Webkit-': '-webkit-',
+    'Khtml-': '-khtml-',
+    'O-': '-o-',
+    'ms-': '-ms-'
+  };
+  var cssRules = {};
+  var tempDiv = document.createElement('div');
 
-  function cssTransition(rule) {
-    return transitionRuleName + ': ' + rule + ';';
+  function findSupportedCSSPropertyName(property) {
+    var cacheProperty = cssRules[property];
+    if(cacheProperty) { return cacheProperty; }
+
+    objForEach(vendorPrefixMap, function(jsPropertyPrefix, cssPropertyPrefix) {
+      var jsProperty = dashedToCamel(jsPropertyPrefix + property); // hyphens are capitalized so a 'Moz-' + 'some-rule' = 'MozSomeRule'
+      console.log(jsPropertyPrefix, cssPropertyPrefix, jsProperty, tempDiv.style[jsProperty]);
+      if(typeof tempDiv.style[jsProperty] === 'string') {
+        var cssProperty = cssPropertyPrefix + property;
+        cssRules[property] = cssProperty;
+        return cssProperty;
+     }
+    });
+  }
+
+  function cssRule(property, value) {
+    return findSupportedCSSPropertyName(property) + ': ' + value + ';';
   }
 
   function uniqueString(size) {
@@ -227,7 +243,7 @@ define(function(require, exports, module) {
     dashedToCamel: dashedToCamel,
     camelToDashed: camelToDashed,
     customStyleSheet: customStyleSheet,
-    cssTransition: cssTransition,
+    cssRule: cssRule,
     uniqueString: uniqueString
   };
 });

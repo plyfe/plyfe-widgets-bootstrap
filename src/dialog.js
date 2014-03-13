@@ -19,13 +19,13 @@ define(function(require, exports, module) {
       'left: 0;' +
       'visibility: hidden;' +
       'background-color: transparent;' +
-      utils.cssTransition('background-color 1s, visibility 0s linear 1s') +
+      utils.cssRule('transition', 'background-color 1s, visibility 0s linear 1s') +
     '}' +
     '\n' +
     '#plyfe-modal-container.show {' +
       'visibility: visible;' +
       'background-color: rgba(0, 0, 0, 0.5);' + // rgba not supported in IE <= 8
-      utils.cssTransition('background-color 500ms') +
+      utils.cssRule('transition', 'background-color 500ms') +
     '}' +
     '\n' +
     '#plyfe-modal-dialog {' +
@@ -38,7 +38,7 @@ define(function(require, exports, module) {
       'border: 1px solid #DDD;' +
       'border-radius: 5px;' +
       'background-color: #EEE;' +
-      utils.cssTransition('opacity 500ms') +
+      utils.cssRule('transition', 'opacity 500ms') +
     '}' +
     '#plyfe-modal-dialog.ready {' +
       'opacity: 1' + // TODO: filter for IE <= 8?

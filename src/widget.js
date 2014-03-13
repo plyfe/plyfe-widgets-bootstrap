@@ -18,7 +18,7 @@ define(function(require, exports, module) {
    var WIDGET_CSS = '' +
     '.plyfe-widget {' +
       'opacity: 0;' +
-      utils.cssTransition('opacity 300ms') +
+      utils.cssRule('transition', 'opacity 300ms') +
     '}' +
     '\n' +
     '.plyfe-widget.ready {' +
@@ -53,12 +53,7 @@ define(function(require, exports, module) {
 
     var params = {
       theme:     utils.dataAttr(el, 'theme', settings.widget.theme),
-      width:     utils.dataAttr(el, 'width'),
-      maxWidth:  utils.dataAttr(el, 'max-width'),
-      minWidth:  utils.dataAttr(el, 'min-width'),
-      height:    utils.dataAttr(el, 'height'),
-      maxHeight: utils.dataAttr(el, 'max-height'),
-      minHeight: utils.dataAttr(el, 'min-height')
+      treatment: utils.dataAttr(el, 'treatment'),
     };
 
     var THEME_PREFIX = 'data-theme-';

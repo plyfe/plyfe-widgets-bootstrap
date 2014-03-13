@@ -1,5 +1,3 @@
-/*global Plyfe */
-
 define(['utils'], function(utils) {
   'use strict';
 

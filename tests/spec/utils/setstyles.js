@@ -1,8 +1,5 @@
-/*global Plyfe */
-
 define(['utils'], function(utils) {
   'use strict';
-
 
   describe('Utils.setStyles()', function() {
     var div;
