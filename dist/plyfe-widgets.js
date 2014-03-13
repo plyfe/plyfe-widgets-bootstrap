@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.12
+ * Plyfe Widgets Library v0.1.13
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -727,29 +727,30 @@
         var utils = require("utils");
         var dialog = require("dialog");
         var widget = require("widget");
-        var MESSAGE_PREFIX = "plyfe";
+        var MESSAGE_PREFIX = "plyfe:";
         var ORIGIN = "*";
+        var PLYFE_ORIGIN_RE = /https?\:\/\/.*?plyfe.me(\:\d+)?/;
         function pm(win, name, data) {
             if (!name) {
                 throw new TypeError("Argument name required");
             }
-            win.postMessage("plyfe:" + name + "\n" + JSON.stringify(data), ORIGIN);
+            win.postMessage("plyfe\n" + name + "\n" + JSON.stringify(data), ORIGIN);
         }
         function gotMessage(e) {
             if (!window.JSON) {
                 return;
             }
             var payload = e.data;
-            var messageForUs = e.origin === ORIGIN && payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
+            var messageForUs = PLYFE_ORIGIN_RE.test(e.origin) && payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
             if (messageForUs) {
-                var newlinePos = payload.indexOf("\n", MESSAGE_PREFIX.length + 1);
-                var name = payload.substr(MESSAGE_PREFIX.length + 1, newlinePos);
+                var newlinePos = payload.indexOf("\n", MESSAGE_PREFIX.length);
+                var name = payload.substring(MESSAGE_PREFIX.length, newlinePos);
                 var data = JSON.parse(payload.substr(newlinePos + 1));
                 var frames = window.frames;
                 routeMessage(name, data, e.source);
             }
         }
-        function routeMessage(name, data, sourceFrame) {
+        function routeMessage(name, data, sourceWindow) {
             switch (name) {
               case "dialog:open":
                 dialog.open(data.src, data.width, data.height);
@@ -761,7 +762,7 @@
 
               case "sizechanged":
                 widget.forEach(function(wgt) {
-                    if (wgt.iframe === sourceFrame) {
+                    if (wgt.iframe.contentWindow === sourceWindow) {
                         utils.setStyles(wgt.el, {
                             width: data.width,
                             height: data.height
@@ -775,7 +776,7 @@
 
               case "broadcast":
                 widget.forEach(function(wgt) {
-                    if (wgt.iframe !== sourceFrame) {
+                    if (wgt.iframe.contentWindow !== sourceWindow) {
                         pm(wgt.iframe, name, data);
                     }
                 });
