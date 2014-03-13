@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.10
+ * Plyfe Widgets Library v0.1.11
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets/LICENSE
  *
- * Date: 2014-03-07
+ * Date: 2014-03-13
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -315,7 +315,10 @@
         function objForEach(obj, callback) {
             for (var name in obj) {
                 if (obj.hasOwnProperty(name)) {
-                    callback(name, obj[name]);
+                    var ret = callback(name, obj[name]);
+                    if (ret === null) {
+                        return;
+                    }
                 }
             }
         }
@@ -393,12 +396,12 @@
             });
         }
         function dashedToCamel(input) {
-            return input.toLowerCase().replace(/-(.)/g, function(match, group1) {
+            return (input + "").replace(/-(.)/g, function(match, group1) {
                 return group1.toUpperCase();
             });
         }
         function camelToDashed(input) {
-            return input.replace(/([A-Z])/g, function(match, group1) {
+            return (input + "").replace(/([A-Z])/g, function(match, group1) {
                 return "-" + group1.toLowerCase();
             });
         }
@@ -418,19 +421,34 @@
             head.insertBefore(sheet, head.firstChild);
             return sheet;
         }
-        var transitionRuleName = function() {
-            var tempDiv = document.createElement("div");
-            var vendorPrefixes = [ null, "Moz", "webkit", "Webkit", "Khtml", "O", "ms" ];
-            for (var i = 0; i < vendorPrefixes.length; i++) {
-                var prefix = vendorPrefixes[i];
-                var prop = !prefix ? "transition" : prefix + "Transition";
-                if (typeof tempDiv.style[prop] === "string") {
-                    return prop;
-                }
+        var vendorPrefixMap = {
+            "": "",
+            "Moz-": "-moz-",
+            "webkit-": "-webkit-",
+            "Webkit-": "-webkit-",
+            "Khtml-": "-khtml-",
+            "O-": "-o-",
+            "ms-": "-ms-"
+        };
+        var cssRules = {};
+        var tempDiv = document.createElement("div");
+        function findSupportedCSSPropertyName(property) {
+            var cacheProperty = cssRules[property];
+            if (cacheProperty) {
+                return cacheProperty;
             }
-        }();
-        function cssTransition(rule) {
-            return transitionRuleName + ": " + rule + ";";
+            objForEach(vendorPrefixMap, function(jsPropertyPrefix, cssPropertyPrefix) {
+                var jsProperty = dashedToCamel(jsPropertyPrefix + property);
+                console.log(jsPropertyPrefix, cssPropertyPrefix, jsProperty, tempDiv.style[jsProperty]);
+                if (typeof tempDiv.style[jsProperty] === "string") {
+                    var cssProperty = cssPropertyPrefix + property;
+                    cssRules[property] = cssProperty;
+                    return cssProperty;
+                }
+            });
+        }
+        function cssRule(property, value) {
+            return findSupportedCSSPropertyName(property) + ": " + value + ";";
         }
         function uniqueString(size) {
             size = +size || 0;
@@ -455,7 +473,7 @@
             dashedToCamel: dashedToCamel,
             camelToDashed: camelToDashed,
             customStyleSheet: customStyleSheet,
-            cssTransition: cssTransition,
+            cssRule: cssRule,
             uniqueString: uniqueString
         };
     });
@@ -572,7 +590,7 @@
     });
     define("dialog", [ "require", "exports", "module", "utils" ], function(require, exports, module) {
         var utils = require("utils");
-        var MODAL_DIALOG_CSS = "" + "#plyfe-modal-container {" + "position: fixed;" + "top: 0;" + "right: 0;" + "bottom: 0;" + "left: 0;" + "visibility: hidden;" + "background-color: transparent;" + utils.cssTransition("background-color 1s, visibility 0s linear 1s") + "}" + "\n" + "#plyfe-modal-container.show {" + "visibility: visible;" + "background-color: rgba(0, 0, 0, 0.5);" + utils.cssTransition("background-color 500ms") + "}" + "\n" + "#plyfe-modal-dialog {" + "position: absolute;" + "top: 20%;" + "left: 50%;" + "margin-left: 150px;" + "width: 300px;" + "opacity: 0;" + "border: 1px solid #DDD;" + "border-radius: 5px;" + "background-color: #EEE;" + utils.cssTransition("opacity 500ms") + "}" + "#plyfe-modal-dialog.ready {" + "opacity: 1" + "}" + "\n" + "#plyfe-modal-iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border: none;" + "overflow: hidden;" + "margin: 1.5%;" + "}";
+        var MODAL_DIALOG_CSS = "" + "#plyfe-modal-container {" + "position: fixed;" + "top: 0;" + "right: 0;" + "bottom: 0;" + "left: 0;" + "visibility: hidden;" + "background-color: transparent;" + utils.cssRule("transition", "background-color 1s, visibility 0s linear 1s") + "}" + "\n" + "#plyfe-modal-container.show {" + "visibility: visible;" + "background-color: rgba(0, 0, 0, 0.5);" + utils.cssRule("transition", "background-color 500ms") + "}" + "\n" + "#plyfe-modal-dialog {" + "position: absolute;" + "top: 20%;" + "left: 50%;" + "margin-left: 150px;" + "width: 300px;" + "opacity: 0;" + "border: 1px solid #DDD;" + "border-radius: 5px;" + "background-color: #EEE;" + utils.cssRule("transition", "opacity 500ms") + "}" + "#plyfe-modal-dialog.ready {" + "opacity: 1" + "}" + "\n" + "#plyfe-modal-iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border: none;" + "overflow: hidden;" + "margin: 1.5%;" + "}";
         utils.customStyleSheet(MODAL_DIALOG_CSS, {
             id: "plyfe-dialog-css"
         });
@@ -627,7 +645,7 @@
         var settings = require("settings");
         var widgets = [];
         var widgetCount = 0;
-        var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + utils.cssTransition("opacity 300ms") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
+        var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + utils.cssRule("transition", "opacity 300ms") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
         utils.customStyleSheet(WIDGET_CSS, {
             id: "plyfe-widget-css"
         });
@@ -651,12 +669,7 @@
             var path = [ "w", this.venue, this.type, this.id ];
             var params = {
                 theme: utils.dataAttr(el, "theme", settings.widget.theme),
-                width: utils.dataAttr(el, "width"),
-                maxWidth: utils.dataAttr(el, "max-width"),
-                minWidth: utils.dataAttr(el, "min-width"),
-                height: utils.dataAttr(el, "height"),
-                maxHeight: utils.dataAttr(el, "max-height"),
-                minHeight: utils.dataAttr(el, "min-height")
+                treatment: utils.dataAttr(el, "treatment")
             };
             var THEME_PREFIX = "data-theme-";
             for (var i = el.attributes.length - 1; i >= 0; i--) {
