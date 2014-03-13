@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.11
+ * Plyfe Widgets Library v0.1.12
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -439,7 +439,6 @@
             }
             objForEach(vendorPrefixMap, function(jsPropertyPrefix, cssPropertyPrefix) {
                 var jsProperty = dashedToCamel(jsPropertyPrefix + property);
-                console.log(jsPropertyPrefix, cssPropertyPrefix, jsProperty, tempDiv.style[jsProperty]);
                 if (typeof tempDiv.style[jsProperty] === "string") {
                     var cssProperty = cssPropertyPrefix + property;
                     cssRules[property] = cssProperty;
