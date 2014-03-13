@@ -204,7 +204,6 @@ define(function(require, exports, module) {
 
     objForEach(vendorPrefixMap, function(jsPropertyPrefix, cssPropertyPrefix) {
       var jsProperty = dashedToCamel(jsPropertyPrefix + property); // hyphens are capitalized so a 'Moz-' + 'some-rule' = 'MozSomeRule'
-      console.log(jsPropertyPrefix, cssPropertyPrefix, jsProperty, tempDiv.style[jsProperty]);
       if(typeof tempDiv.style[jsProperty] === 'string') {
         var cssProperty = cssPropertyPrefix + property;
         cssRules[property] = cssProperty;
