@@ -12,13 +12,14 @@ define(function(require, exports, module) {
   var dialog = require('dialog');
   var widget = require('widget');
 
-  var MESSAGE_PREFIX = 'plyfe';
+  var MESSAGE_PREFIX = 'plyfe:';
   var ORIGIN = '*';
+  var PLYFE_ORIGIN_RE = /https?\:\/\/.*?plyfe.me(\:\d+)?/;
 
   function pm(win, name, data) {
     if(!name) { throw new TypeError('Argument name required'); }
     // console.log('pm(', win, ',' + name +', ', JSON.stringify(data),')');
-    win.postMessage('plyfe:' + name + '\n' + JSON.stringify(data), ORIGIN);
+    win.postMessage('plyfe\n' + name + '\n' + JSON.stringify(data), ORIGIN);
   }
 
   function gotMessage(e) {
@@ -29,11 +30,11 @@ define(function(require, exports, module) {
 
     // We don't care what the message's origin is as long as it has the proper
     // prefix.
-    var messageForUs = e.origin === ORIGIN && payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
+    var messageForUs = PLYFE_ORIGIN_RE.test(e.origin) && payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
 
     if(messageForUs) {
-      var newlinePos = payload.indexOf('\n', MESSAGE_PREFIX.length + 1);
-      var name = payload.substr(MESSAGE_PREFIX.length + 1, newlinePos); // +1 is ':'
+      var newlinePos = payload.indexOf('\n', MESSAGE_PREFIX.length);
+      var name = payload.substring(MESSAGE_PREFIX.length, newlinePos);
       var data = JSON.parse(payload.substr(newlinePos + 1)); // +1 is '\n'
       var frames = window.frames;
 
@@ -43,7 +44,7 @@ define(function(require, exports, module) {
     }
   }
 
-  function routeMessage(name, data, sourceFrame) {
+  function routeMessage(name, data, sourceWindow) {
     switch(name) {
       case 'dialog:open':
         dialog.open(data.src, data.width, data.height);
@@ -54,7 +55,7 @@ define(function(require, exports, module) {
 
       case 'sizechanged':
         widget.forEach(function(wgt) {
-          if(wgt.iframe === sourceFrame) {
+          if(wgt.iframe.contentWindow === sourceWindow) {
             utils.setStyles(wgt.el, { width: data.width, height: data.height });
           }
         });
@@ -65,7 +66,7 @@ define(function(require, exports, module) {
 
       case 'broadcast': // TODO: This might not be needed - remove?
         widget.forEach(function(wgt) {
-          if(wgt.iframe !== sourceFrame) {
+          if(wgt.iframe.contentWindow !== sourceWindow) {
             pm(wgt.iframe, name, data);
           }
         });
