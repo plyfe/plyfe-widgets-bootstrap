@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.15
+ * Plyfe Widgets Library v0.1.16
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -644,7 +644,7 @@
         var settings = require("settings");
         var widgets = [];
         var widgetCount = 0;
-        var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + utils.cssRule("transition", "opacity 300ms") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
+        var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + "overflow-x: hidden;" + utils.cssRule("transition", "opacity 300ms") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
         utils.customStyleSheet(WIDGET_CSS, {
             id: "plyfe-widget-css"
         });
@@ -685,6 +685,7 @@
             };
             iframe.name = iframeName;
             iframe.src = url;
+            iframe.scrolling = "no";
             this.el.innerHTML = "";
             this.el.appendChild(iframe);
             this.iframe = iframe;
@@ -764,7 +765,6 @@
                 widget.forEach(function(wgt) {
                     if (wgt.iframe.contentWindow === sourceWindow) {
                         utils.setStyles(wgt.iframe, {
-                            minWidth: data.width,
                             minHeight: data.height
                         });
                     }
