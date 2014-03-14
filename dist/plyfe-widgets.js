@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.13
+ * Plyfe Widgets Library v0.1.14
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets/LICENSE
  *
- * Date: 2014-03-13
+ * Date: 2014-03-14
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
