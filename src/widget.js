@@ -18,6 +18,7 @@ define(function(require, exports, module) {
    var WIDGET_CSS = '' +
     '.plyfe-widget {' +
       'opacity: 0;' +
+      'overflow-x: hidden;' +
       utils.cssRule('transition', 'opacity 300ms') +
     '}' +
     '\n' +
@@ -72,6 +73,7 @@ define(function(require, exports, module) {
     iframe.onload = function() { iframe.parentNode.className += ' ready'; };
     iframe.name = iframeName;
     iframe.src = url;
+    iframe.scrolling = 'no';
     this.el.innerHTML = '';
     this.el.appendChild(iframe);
     this.iframe = iframe;
