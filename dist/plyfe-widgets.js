@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.14
+ * Plyfe Widgets Library v0.1.15
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -763,9 +763,9 @@
               case "sizechanged":
                 widget.forEach(function(wgt) {
                     if (wgt.iframe.contentWindow === sourceWindow) {
-                        utils.setStyles(wgt.el, {
-                            width: data.width,
-                            height: data.height
+                        utils.setStyles(wgt.iframe, {
+                            minWidth: data.width,
+                            minHeight: data.height
                         });
                     }
                 });
