@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.16
+ * Plyfe Widgets Library v0.1.17
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets/LICENSE
  *
- * Date: 2014-03-14
+ * Date: 2014-03-19
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -457,6 +457,20 @@
             }
             return s.substr(0, size);
         }
+        function trim(s) {
+            return s.replace(/^\s+|\s+$/g, "");
+        }
+        function addClass(el, name) {
+            var classes = trim(el.className).split(/\s+/);
+            for (var i = classes.length - 1; i >= 0; i--) {
+                var className = classes[i];
+                if (className === name) {
+                    return;
+                }
+            }
+            classes.push(trim(name + ""));
+            el.className = classes.join(" ");
+        }
         return {
             head: head,
             dataAttr: dataAttr,
@@ -473,7 +487,9 @@
             camelToDashed: camelToDashed,
             customStyleSheet: customStyleSheet,
             cssRule: cssRule,
-            uniqueString: uniqueString
+            uniqueString: uniqueString,
+            trim: trim,
+            addClass: addClass
         };
     });
     define("settings", [ "require", "exports", "module" ], function(require, exports, module) {
@@ -644,6 +660,7 @@
         var settings = require("settings");
         var widgets = [];
         var widgetCount = 0;
+        var WIDGET_READY_TIMEOUT = 5e3;
         var WIDGET_CSS = "" + ".plyfe-widget {" + "opacity: 0;" + "overflow-x: hidden;" + utils.cssRule("transition", "opacity 300ms") + "}" + "\n" + ".plyfe-widget.ready {" + "opacity: 1;" + "}" + "\n" + ".plyfe-widget iframe {" + "display: block;" + "width: 100%;" + "height: 100%;" + "border-width: 0;" + "overflow: hidden;" + "}";
         utils.customStyleSheet(WIDGET_CSS, {
             id: "plyfe-widget-css"
@@ -678,17 +695,20 @@
                 }
             }
             var url = utils.buildUrl(scheme, domain, port, path.join("/"), params);
+            function widgetIsReady() {
+                clearTimeout(readyTimeout);
+                utils.addClass(el, "ready");
+            }
             var iframeName = "plyfe-" + ++widgetCount;
             var iframe = document.createElement("iframe");
-            iframe.onload = function() {
-                iframe.parentNode.className += " ready";
-            };
+            iframe.onload = widgetIsReady;
             iframe.name = iframeName;
             iframe.src = url;
             iframe.scrolling = "no";
             this.el.innerHTML = "";
             this.el.appendChild(iframe);
             this.iframe = iframe;
+            var readyTimeout = setTimeout(widgetIsReady, WIDGET_READY_TIMEOUT);
         }
         function createWidget(el) {
             if (!el && el.nodeType === 3) {
