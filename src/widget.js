@@ -14,8 +14,9 @@ define(function(require, exports, module) {
 
   var widgets = [];
   var widgetCount = 0;
+  var WIDGET_READY_TIMEOUT = 5000;
 
-   var WIDGET_CSS = '' +
+  var WIDGET_CSS = '' +
     '.plyfe-widget {' +
       'opacity: 0;' +
       'overflow-x: hidden;' +
@@ -68,15 +69,21 @@ define(function(require, exports, module) {
 
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
+    function widgetIsReady() {
+      clearTimeout(readyTimeout);
+      utils.addClass(el, 'ready');
+    }
+
     var iframeName = 'plyfe-' + (++widgetCount);
     var iframe = document.createElement('iframe');
-    iframe.onload = function() { iframe.parentNode.className += ' ready'; };
+    iframe.onload = widgetIsReady;
     iframe.name = iframeName;
     iframe.src = url;
     iframe.scrolling = 'no';
     this.el.innerHTML = '';
     this.el.appendChild(iframe);
     this.iframe = iframe;
+    var readyTimeout = setTimeout(widgetIsReady, WIDGET_READY_TIMEOUT);
   }
 
   function createWidget(el) {

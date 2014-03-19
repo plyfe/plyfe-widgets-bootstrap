@@ -227,6 +227,22 @@ define(function(require, exports, module) {
     return s.substr(0, size);
   }
 
+  function trim(s) {
+    return s.replace(/^\s+|\s+$/g, '');
+  }
+
+  function addClass(el, name) {
+    var classes = trim(el.className).split(/\s+/);
+    for(var i = classes.length - 1; i >= 0; i--) {
+      var className = classes[i];
+      if(className === name) {
+        return;
+      }
+    }
+    classes.push(trim(name + ''));
+    el.className = classes.join(' ');
+  }
+
   return {
     head: head,
     dataAttr: dataAttr,
@@ -243,6 +259,8 @@ define(function(require, exports, module) {
     camelToDashed: camelToDashed,
     customStyleSheet: customStyleSheet,
     cssRule: cssRule,
-    uniqueString: uniqueString
+    uniqueString: uniqueString,
+    trim: trim,
+    addClass: addClass
   };
 });
