@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.18
+ * Plyfe Widgets Library v0.1.19
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -673,6 +673,7 @@
             var scheme = utils.dataAttr(el, "scheme", settings.api.scheme);
             var domain = utils.dataAttr(el, "domain", settings.api.domain);
             var port = utils.dataAttr(el, "port", settings.api.port);
+            var height = utils.dataAttr(el, "height");
             if (!this.venue) {
                 throw new Error("data-venue attribute required");
             }
@@ -685,7 +686,8 @@
             var path = [ "w", this.venue, this.type, this.id ];
             var params = {
                 theme: utils.dataAttr(el, "theme", settings.widget.theme),
-                treatment: utils.dataAttr(el, "treatment")
+                treatment: utils.dataAttr(el, "treatment"),
+                height: height
             };
             var THEME_PREFIX = "data-theme-";
             for (var i = el.attributes.length - 1; i >= 0; i--) {
@@ -707,7 +709,9 @@
             iframe.scrolling = "no";
             iframe.frameBorder = "0";
             iframe.allowTransparency = "true";
+            iframe.style.height = height + "px";
             this.el.innerHTML = "";
+            this.el.appendChild(iframe);
             this.el.appendChild(iframe);
             this.iframe = iframe;
             var readyTimeout = setTimeout(widgetIsReady, WIDGET_READY_TIMEOUT);
