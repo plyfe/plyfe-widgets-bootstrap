@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.17
+ * Plyfe Widgets Library v0.1.18
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets/LICENSE
  *
- * Date: 2014-03-19
+ * Date: 2014-04-04
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -705,6 +705,8 @@
             iframe.name = iframeName;
             iframe.src = url;
             iframe.scrolling = "no";
+            iframe.frameBorder = "0";
+            iframe.allowTransparency = "true";
             this.el.innerHTML = "";
             this.el.appendChild(iframe);
             this.iframe = iframe;
