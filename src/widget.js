@@ -47,6 +47,8 @@ define(function(require, exports, module) {
     var domain = utils.dataAttr(el, 'domain', settings.api.domain);
     var port   = utils.dataAttr(el, 'port', settings.api.port);
 
+    var height = utils.dataAttr(el, 'height');
+
     if(!this.venue) { throw new Error("data-venue attribute required"); }
     if(!this.type) { throw new Error("data-type attribute required"); }
     if(!this.id) { throw new Error("data-id attribute required"); }
@@ -56,6 +58,7 @@ define(function(require, exports, module) {
     var params = {
       theme:     utils.dataAttr(el, 'theme', settings.widget.theme),
       treatment: utils.dataAttr(el, 'treatment'),
+      height:    height
     };
 
     var THEME_PREFIX = 'data-theme-';
@@ -82,7 +85,9 @@ define(function(require, exports, module) {
     iframe.scrolling = 'no';
     iframe.frameBorder = '0'; // NOTE: For IE <= 8
     iframe.allowTransparency = 'true'; // For IE <= 8
+    iframe.style.height = height + 'px';
     this.el.innerHTML = '';
+    this.el.appendChild(iframe);
     this.el.appendChild(iframe);
     this.iframe = iframe;
     var readyTimeout = setTimeout(widgetIsReady, WIDGET_READY_TIMEOUT);
