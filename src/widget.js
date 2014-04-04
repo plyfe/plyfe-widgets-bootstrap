@@ -80,6 +80,7 @@ define(function(require, exports, module) {
     iframe.name = iframeName;
     iframe.src = url;
     iframe.scrolling = 'no';
+    iframe.frameBorder = '0'; // NOTE: For IE <= 8
     iframe.allowTransparency = 'true'; // For IE <= 8
     this.el.innerHTML = '';
     this.el.appendChild(iframe);
