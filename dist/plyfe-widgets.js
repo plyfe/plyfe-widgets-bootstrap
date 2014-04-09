@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.1.19
+ * Plyfe Widgets Library v0.1.20
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets/LICENSE
  *
- * Date: 2014-04-04
+ * Date: 2014-04-09
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -322,22 +322,6 @@
                 }
             }
         }
-        function getElementsByClassName(className, tag) {
-            if (document.getElementsByClass) {
-                return document.getElementsByClassName(className);
-            } else if (document.querySelectorAll) {
-                return document.querySelectorAll("." + className);
-            }
-            var els = document.getElementsByTagName(tag || "*");
-            var pattern = new RegExp("\\b" + className + "\\b");
-            var foundEls = [];
-            for (var i = 0, _len = els.length; i < _len; i++) {
-                if (pattern.test(els[i].className)) {
-                    foundEls.push(els[i]);
-                }
-            }
-            return foundEls;
-        }
         var addEvent = function(obj, name, fn) {
             obj.addEventListener(name, fn, false);
         };
@@ -471,6 +455,11 @@
             classes.push(trim(name + ""));
             el.className = classes.join(" ");
         }
+        function PlyfeError(message) {
+            this.name = "PlyfeError";
+            this.message = message || "";
+        }
+        PlyfeError.prototype = Error.prototype;
         return {
             head: head,
             dataAttr: dataAttr,
@@ -478,7 +467,6 @@
             buildUrl: buildUrl,
             isCorsSupported: isCorsSupported,
             objForEach: objForEach,
-            getElementsByClassName: getElementsByClassName,
             addEvent: addEvent,
             removeEvent: removeEvent,
             domReady: domReady,
@@ -489,51 +477,49 @@
             cssRule: cssRule,
             uniqueString: uniqueString,
             trim: trim,
-            addClass: addClass
+            addClass: addClass,
+            PlyfeError: PlyfeError
         };
     });
     define("settings", [ "require", "exports", "module" ], function(require, exports, module) {
         return {
-            api: {
-                scheme: "https",
-                domain: "plyfe.me",
-                port: 443,
-                userToken: null
-            },
-            widget: {
-                className: "plyfe-widget",
-                theme: null
-            }
+            scheme: "https",
+            domain: "plyfe.me",
+            port: 443,
+            authToken: null,
+            selector: ".plyfe-widget",
+            theme: null
         };
     });
     define("api", [ "require", "exports", "module", "utils", "settings" ], function(require, exports, module) {
         var utils = require("utils");
         var settings = require("settings");
         var _undefined;
+        function empty() {}
         function buildApiUrl(path) {
-            return utils.buildUrl(settings.api.scheme, settings.api.domain, settings.api.port, path);
+            return utils.buildUrl(settings.scheme, settings.domain, settings.port, "/api/" + path);
         }
         function makeApiRequest(method, path, data, options) {
             options = options || {};
+            var success = options.onSuccess || empty;
+            var error = options.onError || empty;
             method = method.toUpperCase();
             var url = buildApiUrl(path);
             var req = utils.isCorsSupported ? new XMLHttpRequest() : new JSONPRequest();
             req.onreadystatechange = function() {
                 if (req.readyState === 4) {
-                    switch (req.status) {
-                      case 0:
-                        throw new Error("Request " + url + " returned an invalid HTTP status of 0.");
-
-                      case 200:
-                      case 304:
-                        if (options.onSuccess) {
-                            var data = req.responseText;
-                            if (typeof data === "string") {
-                                data = JSON.parse(data);
-                            }
-                            options.onSuccess(data, req.status);
+                    var data = JSON.parse(req.responseText || "");
+                    var status = req.status;
+                    if (status === 0) {
+                        error({
+                            message: "Request " + url + " returned an invalid HTTP status of 0."
+                        }, 0);
+                    } else {
+                        if (status >= 200 && status < 400) {
+                            success(data, status);
+                        } else if (status >= 400) {
+                            error(data, status);
                         }
-                        break;
                     }
                 }
             };
@@ -545,10 +531,8 @@
                 req.withCredentials = true;
             }
             if (method === "POST" && data) {
-                req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                if (typeof data === "object") {
-                    data = utils.buildQueryString(data);
-                }
+                req.setRequestHeader("Content-Type", "application/json");
+                data = JSON.stringify(data);
             }
             req.send(data ? data : null);
             return req;
@@ -665,27 +649,33 @@
         utils.customStyleSheet(WIDGET_CSS, {
             id: "plyfe-widget-css"
         });
+        function throwAttrRequired(attr) {
+            throw new utils.PlyfeError("data-" + attr + " attribute required");
+        }
         function Widget(el) {
             this.el = el;
             this.venue = utils.dataAttr(el, "venue");
             this.type = utils.dataAttr(el, "type");
             this.id = utils.dataAttr(el, "id");
-            var scheme = utils.dataAttr(el, "scheme", settings.api.scheme);
-            var domain = utils.dataAttr(el, "domain", settings.api.domain);
-            var port = utils.dataAttr(el, "port", settings.api.port);
-            var height = utils.dataAttr(el, "height");
             if (!this.venue) {
-                throw new Error("data-venue attribute required");
+                throwAttrRequired("venue");
             }
             if (!this.type) {
-                throw new Error("data-type attribute required");
+                throwAttrRequired("type");
             }
             if (!this.id) {
-                throw new Error("data-id attribute required");
+                throwAttrRequired("id");
+            }
+            var scheme = utils.dataAttr(el, "scheme", settings.scheme);
+            var domain = utils.dataAttr(el, "domain", settings.domain);
+            var port = utils.dataAttr(el, "port", settings.port);
+            var height = utils.dataAttr(el, "height");
+            if (!height) {
+                throwAttrRequired("height");
             }
             var path = [ "w", this.venue, this.type, this.id ];
             var params = {
-                theme: utils.dataAttr(el, "theme", settings.widget.theme),
+                theme: utils.dataAttr(el, "theme", settings.theme),
                 treatment: utils.dataAttr(el, "treatment"),
                 height: height
             };
@@ -709,16 +699,17 @@
             iframe.scrolling = "no";
             iframe.frameBorder = "0";
             iframe.allowTransparency = "true";
-            iframe.style.height = height + "px";
+            utils.setStyles(iframe, {
+                height: height
+            });
             this.el.innerHTML = "";
-            this.el.appendChild(iframe);
             this.el.appendChild(iframe);
             this.iframe = iframe;
             var readyTimeout = setTimeout(widgetIsReady, WIDGET_READY_TIMEOUT);
         }
         function createWidget(el) {
             if (!el && el.nodeType === 3) {
-                throw new Error("createWidget() must be called with a DOM element");
+                throw new utils.PlyfeError("createWidget() must be called with a DOM element");
             }
             if (el.firstChild === null || el.firstChild.nodeName !== "iframe") {
                 widgets.push(new Widget(el));
@@ -750,97 +741,53 @@
             forEach: forEach
         };
     });
-    define("switchboard", [ "require", "exports", "module", "utils", "dialog", "widget" ], function(require, exports, module) {
+    define("auth", [ "require", "exports", "module", "utils", "settings", "api" ], function(require, exports, module) {
         var utils = require("utils");
-        var dialog = require("dialog");
-        var widget = require("widget");
-        var MESSAGE_PREFIX = "plyfe:";
-        var ORIGIN = "*";
-        var PLYFE_ORIGIN_RE = /https?\:\/\/.*?plyfe.me(\:\d+)?/;
-        function pm(win, name, data) {
-            if (!name) {
-                throw new TypeError("Argument name required");
+        var settings = require("settings");
+        var api = require("api");
+        var once = false;
+        function logIn(callback, errback) {
+            if (!settings.authToken) {
+                throw new utils.PlyfeError("A authToken must be set before login.");
             }
-            win.postMessage("plyfe\n" + name + "\n" + JSON.stringify(data), ORIGIN);
+            if (once) {
+                throw new utils.PlyfeError("login() can only be called once");
+            }
+            once = true;
+            var options = {};
+            if (callback) {
+                options.onSuccess = callback;
+            }
+            if (errback) {
+                options.onError = errback;
+            }
+            var params = {
+                auth_token: settings.authToken
+            };
+            api.post("/external_sessions", params, options);
         }
-        function gotMessage(e) {
-            if (!window.JSON) {
-                return;
-            }
-            var payload = e.data;
-            var messageForUs = PLYFE_ORIGIN_RE.test(e.origin) && payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
-            if (messageForUs) {
-                var newlinePos = payload.indexOf("\n", MESSAGE_PREFIX.length);
-                var name = payload.substring(MESSAGE_PREFIX.length, newlinePos);
-                var data = JSON.parse(payload.substr(newlinePos + 1));
-                var frames = window.frames;
-                routeMessage(name, data, e.source);
-            }
-        }
-        function routeMessage(name, data, sourceWindow) {
-            switch (name) {
-              case "dialog:open":
-                dialog.open(data.src, data.width, data.height);
-                break;
-
-              case "dialog:close":
-                dialog.close();
-                break;
-
-              case "sizechanged":
-                widget.forEach(function(wgt) {
-                    if (wgt.iframe.contentWindow === sourceWindow) {
-                        utils.setStyles(wgt.iframe, {
-                            minHeight: data.height
-                        });
-                    }
-                });
-                break;
-
-              case "pusher":
-                break;
-
-              case "broadcast":
-                widget.forEach(function(wgt) {
-                    if (wgt.iframe.contentWindow !== sourceWindow) {
-                        pm(wgt.iframe, name, data);
-                    }
-                });
-                break;
-
-              default:
-                console.warn("Switchboard recieved a unhandled '" + name + "' message", data);
-            }
-        }
-        utils.addEvent(window, "message", gotMessage);
         return {
-            postMessage: pm
+            logIn: logIn
         };
     });
-    define("main", [ "require", "exports", "module", "utils", "settings", "api", "dialog", "widget", "switchboard" ], function(require, exports, module) {
+    define("main", [ "require", "exports", "module", "utils", "settings", "api", "dialog", "widget", "auth" ], function(require, exports, module) {
         var utils = require("utils");
         var settings = require("settings");
         var api = require("api");
         var dialog = require("dialog");
         var widget = require("widget");
-        var switchboard = require("switchboard");
+        var auth = require("auth");
         var globalInitFnName = "plyfeAsyncInit";
         var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
-        function PlyfeError(message) {
-            this.name = "PlyfeError";
-            this.message = message || "";
-        }
-        PlyfeError.prototype = Error.prototype;
-        var userToken, widgetDomain, widgetPort, widgetClassName = "plyfe-widget";
         var scripts = document.getElementsByTagName("script");
         for (var i = scripts.length - 1; i >= 0; i--) {
             var script = scripts[i];
             if (/\/plyfe-widgets.*?\.js(\?|#|$)/.test(script.src)) {
-                settings.api.userToken = utils.dataAttr(script, "user-token", null);
-                settings.api.scheme = utils.dataAttr(script, "scheme", settings.api.scheme);
-                settings.api.domain = utils.dataAttr(script, "domain", settings.api.domain);
-                settings.api.port = +utils.dataAttr(script, "port") || settings.api.port;
-                settings.widget.theme = utils.dataAttr(script, "theme");
+                settings.authToken = utils.dataAttr(script, "auth-token", null);
+                settings.scheme = utils.dataAttr(script, "scheme", settings.scheme);
+                settings.domain = utils.dataAttr(script, "domain", settings.domain);
+                settings.port = +utils.dataAttr(script, "port") || settings.port;
+                settings.theme = utils.dataAttr(script, "theme");
                 globalInitFnName = utils.dataAttr(script, "init-name", globalInitFnName);
                 break;
             }
@@ -849,15 +796,17 @@
             utils.domReady(function() {
                 if (window[globalInitFnName] && typeof window[globalInitFnName] === "function") {
                     setTimeout(window[globalInitFnName], 0);
-                } else if (settings.api.userToken) {
-                    login(function() {
+                } else if (settings.authToken) {
+                    auth.logIn(function() {
                         createWidgets();
                     });
+                } else {
+                    createWidgets();
                 }
             });
         }
         function createWidgets() {
-            var divs = utils.getElementsByClassName(settings.widget.className);
+            var divs = document.querySelectorAll(settings.selector);
             for (var i = 0; i < divs.length; i++) {
                 widget.create(divs[i]);
             }
@@ -865,25 +814,11 @@
         function createWidget(el) {
             return widget.create(el);
         }
-        function login(callback) {
-            if (!settings.api.userToken) {
-                throw new PlyfeError("A userToken must be set before login.");
-            }
-            var options = {
-                withCredentials: true
-            };
-            if (callback) {
-                options.onSuccess = callback;
-            }
-            return api.post("/external_sessions/", {
-                auth_token: settings.api.userToken
-            }, options);
-        }
         return {
             settings: settings,
             createWidgets: createWidgets,
             createWidget: createWidget,
-            login: login
+            logIn: auth.logIn
         };
     });
     return require("main");
