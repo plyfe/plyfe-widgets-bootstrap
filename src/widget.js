@@ -54,7 +54,7 @@ define(function(require, exports, module) {
     var domain = utils.dataAttr(el, 'domain', settings.domain);
     var port   = utils.dataAttr(el, 'port', settings.port);
 
-    var height = utils.dataAttr(el, 'height');
+    var height = +utils.dataAttr(el, 'height');
     if(!height) { throwAttrRequired('height'); }
 
     var path = ['w', this.venue, this.type, this.id];

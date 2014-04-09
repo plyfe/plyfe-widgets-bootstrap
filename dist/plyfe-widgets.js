@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.2.1
+ * Plyfe Widgets Library v0.2.2
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -669,7 +669,7 @@
             var scheme = utils.dataAttr(el, "scheme", settings.scheme);
             var domain = utils.dataAttr(el, "domain", settings.domain);
             var port = utils.dataAttr(el, "port", settings.port);
-            var height = utils.dataAttr(el, "height");
+            var height = +utils.dataAttr(el, "height");
             if (!height) {
                 throwAttrRequired("height");
             }
