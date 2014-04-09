@@ -82,7 +82,7 @@ module.exports = function(grunt) {
 
     mocha: {
       options: {
-        run: false,
+        run: false
       },
       test: {
         src: ['tests/*.html'],

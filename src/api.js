@@ -15,12 +15,17 @@ define(function(require, exports, module) {
   // altered.
   var _undefined;
 
+  function empty() {}
+
   function buildApiUrl(path) {
-    return utils.buildUrl(settings.api.scheme, settings.api.domain, settings.api.port, path);
+    return utils.buildUrl(settings.scheme, settings.domain, settings.port, '/api/' + path);
   }
 
   function makeApiRequest(method, path, data, options) {
     options = options || {};
+    var success = options.onSuccess || empty;
+    var error = options.onError || empty;
+
     method = method.toUpperCase();
     var url = buildApiUrl(path);
 
@@ -28,20 +33,17 @@ define(function(require, exports, module) {
 
     req.onreadystatechange = function() {
       if(req.readyState === 4) {
-        switch(req.status) {
-          case 0:
-            throw new Error('Request ' + url + ' returned an invalid HTTP status of 0.');
-          case 200:
-          case 304: // fall through on purpose
-            if(options.onSuccess) { // Only parse the response if we have a callback
-              var data = req.responseText;
-              if(typeof data === 'string') {
-                data = JSON.parse(data);
-              }
+        var data = JSON.parse(req.responseText || '');
+        var status = req.status;
 
-              options.onSuccess(data, req.status);
-            }
-          break;
+        if(status === 0) {
+          error({message: 'Request ' + url + ' returned an invalid HTTP status of 0.'}, 0);
+        } else {
+          if(status >= 200 && status < 400) { // success
+            success(data, status);
+          } else if(status >= 400) { // error
+            error(data, status);
+          }
         }
       }
     };
@@ -57,11 +59,9 @@ define(function(require, exports, module) {
     }
 
     if(method === 'POST' && data) {
-      req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+      req.setRequestHeader('Content-Type','application/json');
 
-      if(typeof data === 'object') {
-        data = utils.buildQueryString(data);
-      }
+      data = JSON.stringify(data);
     }
 
     req.send(data ? data : null);

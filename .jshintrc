@@ -26,7 +26,12 @@
         "it",
         "xit",
         "expect",
-        "beforeEach"
+        "before",
+        "after",
+        "beforeEach",
+        "afterEach",
+
+        "sinon"
     ],
 
 

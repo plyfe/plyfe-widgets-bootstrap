@@ -13,15 +13,15 @@ describe('Loaded', function() {
   });
 
   it('should have changed the default domain', function() {
-    expect(Plyfe.settings.api.domain).to.be('different.domain.com');
+    expect(Plyfe.settings.domain).to.be('example.com');
   });
 
   it('should have changed the default port', function() {
-    expect(Plyfe.settings.api.port).to.be(8080);
+    expect(Plyfe.settings.port).to.be(8080);
   });
 
   it('should have changed the default URL scheme', function() {
-    expect(Plyfe.settings.api.scheme).to.be('file');
+    expect(Plyfe.settings.scheme).to.be('http');
   });
 
   it('should have changed the default global init callback', function(done) {

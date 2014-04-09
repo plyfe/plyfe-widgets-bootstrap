@@ -9,16 +9,12 @@ define(function(require, exports, module) {
   'use strict';
 
   return {
-    api: {
-      scheme: 'https',
-      domain: 'plyfe.me',
-      port: 443,
-      userToken: null
-    },
-    widget: {
-      className: 'plyfe-widget',
-      theme: null
-    }
+    scheme: 'https',
+    domain: 'plyfe.me',
+    port: 443,
+    authToken: null,
+    selector: '.plyfe-widget',
+    theme: null
   };
 
 });

@@ -14,20 +14,20 @@ define(['api', 'utils', 'settings'], function(api, utils, settings) {
     });
 
     it('should build the correct API URL', function() {
-      expect(api.buildApiUrl('/foo')).to.be('https://plyfe.me/foo');
+      expect(api.buildApiUrl('/foo')).to.be('https://plyfe.me/api/foo');
     });
 
     it('should allow URL overrides via settings', function() {
-      settings.api.scheme = 'http';
-      settings.api.domain = 'example.com';
-      settings.api.port   = 80;
-      expect(api.buildApiUrl('/foo')).to.be('http://example.com/foo');
+      settings.scheme = 'http';
+      settings.domain = 'example.com';
+      settings.port   = 80;
+      expect(api.buildApiUrl('/foo')).to.be('http://example.com/api/foo');
 
-      settings.api.scheme = 'https';
-      settings.api.domain = 'development.plyfe.me';
-      settings.api.port   = 3001;
-      expect(api.buildApiUrl('/foo/bar')).to.be('https://development.plyfe.me:3001/foo/bar');
-      expect(api.buildApiUrl('/foo/bar?a=1')).to.be('https://development.plyfe.me:3001/foo/bar?a=1');
+      settings.scheme = 'https';
+      settings.domain = 'development.plyfe.me';
+      settings.port   = 3001;
+      expect(api.buildApiUrl('/foo/bar')).to.be('https://development.plyfe.me:3001/api/foo/bar');
+      expect(api.buildApiUrl('/foo/bar?a=1')).to.be('https://development.plyfe.me:3001/api/foo/bar?a=1');
     });
 
   });

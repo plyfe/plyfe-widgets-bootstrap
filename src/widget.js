@@ -5,7 +5,6 @@
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
-/*global Plyfe */
 define(function(require, exports, module) {
   'use strict';
 
@@ -37,26 +36,31 @@ define(function(require, exports, module) {
 
   utils.customStyleSheet(WIDGET_CSS, { id: 'plyfe-widget-css' });
 
+  function throwAttrRequired(attr) {
+    throw new utils.PlyfeError("data-" + attr + " attribute required");
+  }
+
   function Widget(el) {
     this.el = el;
     this.venue = utils.dataAttr(el, 'venue');
-    this.type = utils.dataAttr(el, 'type');
-    this.id = utils.dataAttr(el, 'id');
+    this.type  = utils.dataAttr(el, 'type');
+    this.id    = utils.dataAttr(el, 'id');
 
-    var scheme = utils.dataAttr(el, 'scheme', settings.api.scheme);
-    var domain = utils.dataAttr(el, 'domain', settings.api.domain);
-    var port   = utils.dataAttr(el, 'port', settings.api.port);
+    if(!this.venue) { throwAttrRequired('venue'); }
+    if(!this.type) { throwAttrRequired('type'); }
+    if(!this.id) { throwAttrRequired('id'); }
+
+    var scheme = utils.dataAttr(el, 'scheme', settings.scheme);
+    var domain = utils.dataAttr(el, 'domain', settings.domain);
+    var port   = utils.dataAttr(el, 'port', settings.port);
 
     var height = utils.dataAttr(el, 'height');
-
-    if(!this.venue) { throw new Error("data-venue attribute required"); }
-    if(!this.type) { throw new Error("data-type attribute required"); }
-    if(!this.id) { throw new Error("data-id attribute required"); }
+    if(!height) { throwAttrRequired('height'); }
 
     var path = ['w', this.venue, this.type, this.id];
 
     var params = {
-      theme:     utils.dataAttr(el, 'theme', settings.widget.theme),
+      theme:     utils.dataAttr(el, 'theme', settings.theme),
       treatment: utils.dataAttr(el, 'treatment'),
       height:    height
     };
@@ -85,16 +89,15 @@ define(function(require, exports, module) {
     iframe.scrolling = 'no';
     iframe.frameBorder = '0'; // NOTE: For IE <= 8
     iframe.allowTransparency = 'true'; // For IE <= 8
-    iframe.style.height = height + 'px';
+    utils.setStyles(iframe, { height: height });
     this.el.innerHTML = '';
-    this.el.appendChild(iframe);
     this.el.appendChild(iframe);
     this.iframe = iframe;
     var readyTimeout = setTimeout(widgetIsReady, WIDGET_READY_TIMEOUT);
   }
 
   function createWidget(el) {
-    if(!el && el.nodeType === 3) { throw new Error('createWidget() must be called with a DOM element'); }
+    if(!el && el.nodeType === 3) { throw new utils.PlyfeError('createWidget() must be called with a DOM element'); }
     // Be defensive against repeated calls to createWidget()
     if(el.firstChild === null || el.firstChild.nodeName !== 'iframe') {
       widgets.push(new Widget(el));

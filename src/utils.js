@@ -67,26 +67,6 @@ define(function(require, exports, module) {
     }
   }
 
-  function getElementsByClassName(className, tag) {
-    if(document.getElementsByClass) {
-      return document.getElementsByClassName(className);
-    } else if(document.querySelectorAll) {
-      return document.querySelectorAll('.' + className);
-    }
-
-    var els = document.getElementsByTagName(tag || '*');
-    var pattern = new RegExp('\\b' + className + '\\b');
-    var foundEls = []; // NOTE: not a NodeList object like above document.*
-
-    for(var i = 0, _len = els.length; i < _len; i++) {
-      if(pattern.test(els[i].className)) {
-        foundEls.push(els[i]);
-      }
-    }
-
-    return foundEls;
-  }
-
   var addEvent = function(obj, name, fn) {
     obj.addEventListener(name, fn, false);
   };
@@ -243,6 +223,12 @@ define(function(require, exports, module) {
     el.className = classes.join(' ');
   }
 
+  function PlyfeError(message) {
+    this.name = 'PlyfeError';
+    this.message = (message || '');
+  }
+  PlyfeError.prototype = Error.prototype;
+
   return {
     head: head,
     dataAttr: dataAttr,
@@ -250,7 +236,6 @@ define(function(require, exports, module) {
     buildUrl: buildUrl,
     isCorsSupported: isCorsSupported,
     objForEach: objForEach,
-    getElementsByClassName: getElementsByClassName,
     addEvent: addEvent,
     removeEvent: removeEvent,
     domReady: domReady,
@@ -261,6 +246,7 @@ define(function(require, exports, module) {
     cssRule: cssRule,
     uniqueString: uniqueString,
     trim: trim,
-    addClass: addClass
+    addClass: addClass,
+    PlyfeError: PlyfeError
   };
 });

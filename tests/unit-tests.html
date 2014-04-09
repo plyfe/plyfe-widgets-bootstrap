@@ -17,6 +17,7 @@
 <script src="../node_modules/requirejs/require.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/expect.js/index.js"></script>
+<script src="../node_modules/sinon/pkg/sinon.js"></script>
 <script>mocha.setup('bdd');</script>
 
 <script>
@@ -34,12 +35,12 @@ var specs = [
   'spec/utils/buildurl',
   'spec/utils/dashed_camels',
   'spec/utils/objforeach',
-  'spec/utils/getelementsbyclassname',
   'spec/utils/setstyles',
   'spec/utils/uniquestring',
   'spec/utils/addclass',
   'spec/switchboard',
   'spec/api',
+  'spec/login',
 ];
 
 window.onload = function() {

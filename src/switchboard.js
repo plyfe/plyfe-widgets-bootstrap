@@ -14,12 +14,11 @@ define(function(require, exports, module) {
 
   var MESSAGE_PREFIX = 'plyfe:';
   var ORIGIN = '*';
-  var PLYFE_ORIGIN_RE = /https?\:\/\/.*?plyfe.me(\:\d+)?/;
 
   function pm(win, name, data) {
     if(!name) { throw new TypeError('Argument name required'); }
     // console.log('pm(', win, ',' + name +', ', JSON.stringify(data),')');
-    win.postMessage('plyfe\n' + name + '\n' + JSON.stringify(data), ORIGIN);
+    win.postMessage(MESSAGE_PREFIX + name + '\n' + JSON.stringify(data), ORIGIN);
   }
 
   function gotMessage(e) {
@@ -30,7 +29,7 @@ define(function(require, exports, module) {
 
     // We don't care what the message's origin is as long as it has the proper
     // prefix.
-    var messageForUs = PLYFE_ORIGIN_RE.test(e.origin) && payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
+    var messageForUs = payload.substr(0, MESSAGE_PREFIX.length) === MESSAGE_PREFIX;
 
     if(messageForUs) {
       var newlinePos = payload.indexOf('\n', MESSAGE_PREFIX.length);
@@ -59,9 +58,6 @@ define(function(require, exports, module) {
             utils.setStyles(wgt.iframe, { minHeight: data.height });
           }
         });
-        break;
-
-      case 'pusher': // TODO: flesh out pusher:
         break;
 
       case 'broadcast': // TODO: This might not be needed - remove?
