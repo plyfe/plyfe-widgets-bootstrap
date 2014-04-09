@@ -108,12 +108,16 @@ module.exports = function(grunt) {
     'mocha',
   ]);
 
-  ['', ':patch', ':minor', ':major', ':build', ':git'].forEach(function(task) {
-    grunt.registerTask('release' + task, [
-      'bump-only:' + task,
-      'default',
-      'bump-commit',
-    ]);
+  grunt.registerTask('release', function(type) {
+    type = type || 'patch'; // Default release type
+    grunt.task.run('bump-only:' + type);
+    grunt.task.run('default');
+    grunt.task.run('bump-commit');
   });
+
+  // ['', ':patch', ':minor', ':major', ':build', ':git'].forEach(function(task) {
+  //   grunt.registerTask('release' + task, [
+  //   ]);
+  // });
 
 };
