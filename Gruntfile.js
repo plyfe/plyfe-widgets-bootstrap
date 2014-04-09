@@ -115,9 +115,4 @@ module.exports = function(grunt) {
     grunt.task.run('bump-commit');
   });
 
-  // ['', ':patch', ':minor', ':major', ':build', ':git'].forEach(function(task) {
-  //   grunt.registerTask('release' + task, [
-  //   ]);
-  // });
-
 };
