@@ -5,7 +5,7 @@
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
-define(function(require, exports, module) {
+define(function(require) {
   'use strict';
 
   var utils = require('utils');

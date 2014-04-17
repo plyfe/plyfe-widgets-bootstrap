@@ -5,15 +5,16 @@
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
-define(function(require, exports, module) {
+define(function(require) {
   'use strict';
 
   var utils = require('utils');
   var settings = require('settings');
-  var api = require('api');
-  var dialog = require('dialog');
   var widget = require('widget');
   var auth = require('auth');
+  var switchboard = require('switchboard');
+
+  switchboard.setup();
 
   var globalInitFnName = 'plyfeAsyncInit';
   // NOTE: Have to use `=== false`. Check build_frags/start.frag for the hack.

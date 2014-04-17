@@ -5,11 +5,10 @@
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
-define(function(require, exports, module) {
+define(function(require) {
   'use strict';
 
   var utils = require('utils');
-  var dialog = require('dialog');
   var widget = require('widget');
 
   var MESSAGE_PREFIX = 'plyfe:';
@@ -35,7 +34,6 @@ define(function(require, exports, module) {
       var newlinePos = payload.indexOf('\n', MESSAGE_PREFIX.length);
       var name = payload.substring(MESSAGE_PREFIX.length, newlinePos);
       var data = JSON.parse(payload.substr(newlinePos + 1)); // +1 is '\n'
-      var frames = window.frames;
 
       routeMessage(name, data, e.source);
 
@@ -44,38 +42,53 @@ define(function(require, exports, module) {
   }
 
   function routeMessage(name, data, sourceWindow) {
-    switch(name) {
-      case 'dialog:open':
-        dialog.open(data.src, data.width, data.height);
-        break;
-      case 'dialog:close':
-        dialog.close();
+    var parts = name.split(':');
+
+    switch(parts[0]) {
+      case 'broadcast':
+        broadcast(parts.slice(1).join(':'), data, sourceWindow);
         break;
 
+      // TODO: remove later
       case 'sizechanged':
-        widget.forEach(function(wgt) {
-          if(wgt.iframe.contentWindow === sourceWindow) {
-            utils.setStyles(wgt.iframe, { minHeight: data.height });
-          }
-        });
         break;
 
-      case 'broadcast': // TODO: This might not be needed - remove?
-        widget.forEach(function(wgt) {
-          if(wgt.iframe.contentWindow !== sourceWindow) {
-            pm(wgt.iframe, name, data);
-          }
-        });
-        break;
+      // case 'dialog':
+      //   dialogMessage(parts[1], data);
+      //   break;
 
       default:
         console.warn("Switchboard recieved a unhandled '" + name + "' message", data);
     }
   }
 
-  utils.addEvent(window, 'message', gotMessage);
+  // function dialogMessage(action, data) {
+  //   switch(action) {
+  //     case 'open':
+  //       dialog.open(data.src, data.width, data.height);
+  //       break;
+  //     case 'close':
+  //       dialog.close();
+  //       break;
+  //     default:
+  //       console.warn("Switchboard recieved unknown dialog action '" + action + "'", data);
+  //   }
+  // }
+
+  function broadcast(name, data, sourceWindow) {
+    widget.forEach(function(wgt) {
+      if(wgt.iframe.contentWindow !== sourceWindow) {
+        pm(wgt.iframe.contentWindow, name, data);
+      }
+    });
+  }
+
+  function setup() {
+    utils.addEvent(window, 'message', gotMessage);
+  }
 
   return {
+    setup: setup,
     postMessage: pm
   };
 });

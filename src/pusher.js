@@ -6,7 +6,9 @@
 */
 
 /*global Pusher */
-define(function(require, exports, module) {
+/*jshint unused:false */
+
+define(function(require) {
   'use strict';
 
   // TODO: load pusher.js async from their CDN. Store incoming listen requests

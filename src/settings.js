@@ -5,7 +5,8 @@
 * see: http://github.com/plyfe/plyfe-widgets/LICENSE for details
 */
 
-define(function(require, exports, module) {
+/*jshint unused:false */
+define(function(require) {
   'use strict';
 
   return {

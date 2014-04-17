@@ -1,5 +1,3 @@
-var exec = require('child_process').exec;
-
 /*global module */
 module.exports = function(grunt) {
   'use strict';
