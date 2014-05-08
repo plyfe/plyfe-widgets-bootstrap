@@ -1,5 +1,5 @@
 {
-  "name": "plyfe-widgets",
+  "name": "plyfe-widgets-bootstrap",
   "version": "0.2.3",
   "description": "Plyfe's embedable widgets",
   "scripts": {
@@ -10,7 +10,7 @@
   ],
   "author": "seamus.oconnor@pneumaticweb.com",
   "license": "MIT",
-  "repository": "https://github.com/plyfe/plyfe-widgets",
+  "repository": "https://github.com/plyfe/plyfe-widgets-bootstrap",
   "devDependencies": {
     "requirejs": "~2.1.11",
     "grunt-contrib-requirejs": "~0.4.1",

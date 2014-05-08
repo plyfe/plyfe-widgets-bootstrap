@@ -5,7 +5,7 @@
  * Copyright 2014, Plyfe Inc.
  *
  * Available via the MIT license.
- * http://github.com/plyfe/plyfe-widgets/LICENSE
+ * http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE
  *
  * Date: <%= grunt.template.today("yyyy-mm-dd") %>
  */

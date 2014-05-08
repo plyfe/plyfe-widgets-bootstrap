@@ -1,5 +1,5 @@
-// Mess with global JS properties before loading plyfe-widgets.js to simulate
-// our <script> being included inside a hostal webpage.
+// Mess with global JS properties before loading plyfe-widgets-bootstrap.js to simulate
+// our <script> being included inside a hostile webpage.
 
 // Add stuff to the Object.prototype to mess up simple `for in`  loops
 Object.prototype.foobar = function() {

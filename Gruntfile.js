@@ -31,7 +31,7 @@ module.exports = function(grunt) {
           baseUrl: "src",
           name: '../node_modules/almond/almond',
           include: ['main'],
-          out: 'dist/plyfe-widgets.js',
+          out: 'dist/plyfe-widgets-bootstrap.js',
           wrap: {
             startFile: 'src/build_frags/start.frag',
             endFile: 'src/build_frags/end.frag'
@@ -46,7 +46,7 @@ module.exports = function(grunt) {
       },
       minified: {
         files: {
-          'dist/plyfe-widgets.min.js': ['dist/plyfe-widgets.js']
+          'dist/plyfe-widgets-bootstrap.min.js': ['dist/plyfe-widgets-bootstrap.js']
         }
       },
       beautiful: {
@@ -57,7 +57,7 @@ module.exports = function(grunt) {
           beautify: true,
         },
         files: {
-          'dist/plyfe-widgets.js': ['dist/plyfe-widgets.js']
+          'dist/plyfe-widgets-bootstrap.js': ['dist/plyfe-widgets-bootstrap.js']
         }
       }
     },

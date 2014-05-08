@@ -5,9 +5,9 @@
  * Copyright 2014, Plyfe Inc.
  *
  * Available via the MIT license.
- * http://github.com/plyfe/plyfe-widgets/LICENSE
+ * http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE
  *
- * Date: 2014-04-17
+ * Date: 2014-05-08
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -783,7 +783,7 @@
         var scripts = document.getElementsByTagName("script");
         for (var i = scripts.length - 1; i >= 0; i--) {
             var script = scripts[i];
-            if (/\/plyfe-widgets.*?\.js(\?|#|$)/.test(script.src)) {
+            if (/\/plyfe-widgets-bootstrap.*?\.js(\?|#|$)/.test(script.src)) {
                 settings.authToken = utils.dataAttr(script, "auth-token", null);
                 settings.scheme = utils.dataAttr(script, "scheme", settings.scheme);
                 settings.domain = utils.dataAttr(script, "domain", settings.domain);

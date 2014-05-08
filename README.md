@@ -10,7 +10,7 @@ How-To
 To include Plyfe's widgets on your web page first include the `<script>` tag on your page.
 
 ```html
-<script src="//d2hlj83egq3ows.cloudfront.net/system/production/assets/plyfe-widgets.js"></script>
+<script src="//d2hlj83egq3ows.cloudfront.net/system/production/assets/plyfe-widgets-bootstrap.js"></script>
 ```
 
 The script will execute and look for tags on the page that have a 'plyfe-widget' class on them. Add the following where ever you want the widgets to show up.

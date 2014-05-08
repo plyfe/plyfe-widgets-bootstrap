@@ -1,4 +1,4 @@
-require(['plyfe-widgets'], function(plyfe) {
+require(['plyfe-widgets-bootstrap'], function(plyfe) {
   'use strict';
 
   describe('Loaded via an AMD loader', function() {
