@@ -60,19 +60,11 @@ define(function(require) {
     var path = ['w', this.venue, this.type, this.id];
 
     var params = {
-      theme:     utils.dataAttr(el, 'theme', settings.theme),
-      treatment: utils.dataAttr(el, 'treatment'),
-      height:    height
+      theme:      utils.dataAttr(el, 'theme', settings.theme),
+      theme_data: utils.dataAttr(el, 'theme-overrides'),
+      treatment:  utils.dataAttr(el, 'treatment'),
+      height:     height
     };
-
-    var THEME_PREFIX = 'data-theme-';
-
-    for(var i = el.attributes.length - 1; i >= 0; i--) {
-      var attr = el.attributes[i];
-      if(attr.name.indexOf(THEME_PREFIX) === 0) { // only look for data-theme- attrs
-        params[attr.name.substr(THEME_PREFIX.length)] = attr.value;
-      }
-    }
 
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 

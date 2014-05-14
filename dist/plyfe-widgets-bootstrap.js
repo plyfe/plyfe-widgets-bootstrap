@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.2.3
+ * Plyfe Widgets Library v0.3.0
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE
  *
- * Date: 2014-05-08
+ * Date: 2014-05-14
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -528,16 +528,10 @@
             var path = [ "w", this.venue, this.type, this.id ];
             var params = {
                 theme: utils.dataAttr(el, "theme", settings.theme),
+                theme_data: utils.dataAttr(el, "theme-overrides"),
                 treatment: utils.dataAttr(el, "treatment"),
                 height: height
             };
-            var THEME_PREFIX = "data-theme-";
-            for (var i = el.attributes.length - 1; i >= 0; i--) {
-                var attr = el.attributes[i];
-                if (attr.name.indexOf(THEME_PREFIX) === 0) {
-                    params[attr.name.substr(THEME_PREFIX.length)] = attr.value;
-                }
-            }
             var url = utils.buildUrl(scheme, domain, port, path.join("/"), params);
             function widgetIsReady() {
                 clearTimeout(readyTimeout);
