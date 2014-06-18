@@ -8,7 +8,8 @@ Object.prototype.foobar = function() {
 };
 
 // Set undefined to something weird. Only applicable for non-ES5 browsers. E.g
-// IE <= 8
+// IE <= 8. Have to turn off JSHints error reporting of our crazyness here.
+/* jshint -W024 */
 window.undefined = '__undefined__';
 var undefinedIsOverrideable = (undefined !== void 0);
 

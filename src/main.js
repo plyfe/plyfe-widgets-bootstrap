@@ -72,7 +72,7 @@ define(function(require) {
     settings: settings,
     createWidgets: createWidgets,
     createWidget: createWidget,
-    logIn: auth.logIn,
+    logIn: auth.logIn
   };
 
 });

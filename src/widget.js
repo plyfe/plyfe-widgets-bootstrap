@@ -37,7 +37,7 @@ define(function(require) {
   utils.customStyleSheet(WIDGET_CSS, { id: 'plyfe-widget-css' });
 
   function throwAttrRequired(attr) {
-    throw new utils.PlyfeError("data-" + attr + " attribute required");
+    throw new utils.PlyfeError('data-' + attr + ' attribute required');
   }
 
   function Widget(el) {
@@ -65,6 +65,10 @@ define(function(require) {
       treatment:  utils.dataAttr(el, 'treatment'),
       height:     height
     };
+
+    if(utils.dataAttr(el, 'transparent-bg')) {
+      params.transparent = 'true';
+    }
 
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
