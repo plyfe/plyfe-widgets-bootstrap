@@ -1,5 +1,5 @@
 /*!
- * Plyfe Widgets Library v0.3.0
+ * Plyfe Widgets Library v0.3.1
  * http://plyfe.com/
  *
  * Copyright 2014, Plyfe Inc.
@@ -7,7 +7,7 @@
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE
  *
- * Date: 2014-05-14
+ * Date: 2014-06-18
  */
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -532,6 +532,9 @@
                 treatment: utils.dataAttr(el, "treatment"),
                 height: height
             };
+            if (utils.dataAttr(el, "transparent-bg")) {
+                params.transparent = "true";
+            }
             var url = utils.buildUrl(scheme, domain, port, path.join("/"), params);
             function widgetIsReady() {
                 clearTimeout(readyTimeout);

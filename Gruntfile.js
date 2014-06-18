@@ -1,4 +1,5 @@
-/*global module */
+/* jshint es3:false, node:true */
+
 module.exports = function(grunt) {
   'use strict';
 
@@ -28,7 +29,7 @@ module.exports = function(grunt) {
       production: {
         options: {
           optimize: 'none',
-          baseUrl: "src",
+          baseUrl: 'src',
           name: '../node_modules/almond/almond',
           include: ['main'],
           out: 'dist/plyfe-widgets-bootstrap.js',

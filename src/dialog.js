@@ -109,6 +109,6 @@ define(function(require) {
 
   return {
     open: open,
-    close: close,
+    close: close
   };
 });

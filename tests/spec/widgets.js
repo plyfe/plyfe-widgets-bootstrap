@@ -6,7 +6,7 @@ window.plyfeAsyncInit = function() {};
 describe('Widget created', function() {
   'use strict';
 
-  it("should have created widget #1's <iframe>", function() {
+  it('should have created widget #1\'s <iframe>', function() {
     expect(document.querySelector('#widget-1 > iframe')).to.be(null);
     Plyfe.createWidgets();
     var iframe = document.querySelector('#widget-1 > iframe');
@@ -18,7 +18,7 @@ describe('Widget created', function() {
   it('should have found a custom URL for widget #2', function() {
     var iframe = document.querySelector('#widget-2 > iframe');
     expect(iframe).to.not.be(null);
-    expect(iframe.src).to.be('http://localhost/w/fake/rd/1?theme=drinkup&theme_data=%7B%22bg_color%22%3A%20%22%23FFFFFF%22%7D&treatment=B&height=100');
+    expect(iframe.src).to.be('http://localhost/w/fake/rd/1?theme=drinkup&theme_data=%7B%22bg_color%22%3A%20%22%23FFFFFF%22%7D&treatment=B&height=100&transparent=true');
   });
 
 });
