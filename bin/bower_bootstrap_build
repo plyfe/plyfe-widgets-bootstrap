@@ -40,9 +40,10 @@ git remote rm origin
 # sending output to /dev/null to prevent GH_TOKEN leak on error
 git remote add components https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git &> /dev/null
 git add -A
-git commit -m "Plyfe Cms Bower Auto build for https://github.com/plyfe/plyfe-cms/commits/${TRAVIS_COMMIT}."
+git commit -m "Plyfe Cms Bower Auto build for https://github.com/plyfe/plyfe-widgets-bootstrap/commits/${TRAVIS_COMMIT}."
 npm install grunt-bump
 cp ../Gruntfile.js Gruntfile.js
+cp -r ../src/. src/
 git push --set-upstream components ${CHANNEL}
 grunt bump -setversion="${TAG_VERSION}" --force
 
