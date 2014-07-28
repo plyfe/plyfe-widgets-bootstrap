@@ -4,8 +4,7 @@ git config --global user.email "manolo@plyfe.me"
 git config --global user.name "manolo"
 git config --global push.default simple
 
-# This specifies the repository we are going to work with.  This will most likely be set to 'ember'
-REPO_SLUG="plyfe/widgets-bootstrap"
+REPO_SLUG="plyfe/releases-plyfe-widgets-bootstrap"
 
 # This specifies the user who is associated to the GH_TOKEN
 USER="mfamilia"
