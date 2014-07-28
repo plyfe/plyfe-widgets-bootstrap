@@ -31,11 +31,11 @@ echo -e "TAG_VERSION: ${TAG_VERSION}\n"
 echo -e "CHANNEL: ${CHANNEL}\n"
 
 # sending output to /dev/null to prevent GH_TOKEN leak on error
-git clone --branch ${CHANNEL} https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git bower_cms &> /dev/null
-rm -rf bower_cms/*
-cp -r dist/. bower_cms/dist
-cp *.json bower_cms/
-cd bower_cms
+git clone --branch ${CHANNEL} https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git bower_bootstrap &> /dev/null
+rm -rf bower_bootstrap/*
+cp -r dist/. bower_bootstrap/dist
+cp *.json bower_bootstrap/
+cd bower_bootstrap
 git remote rm origin
 
 # sending output to /dev/null to prevent GH_TOKEN leak on error
