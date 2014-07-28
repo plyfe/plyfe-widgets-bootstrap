@@ -29,6 +29,8 @@ echo -e "TAG_VERSION_LENGTH: ${TAG_VERSION_LENGTH}\n"
 echo -e "TAG_VERSION: ${TAG_VERSION}\n"
 echo -e "CHANNEL: ${CHANNEL}\n"
 
+grunt
+
 # sending output to /dev/null to prevent GH_TOKEN leak on error
 git clone --branch ${CHANNEL} https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git bower_bootstrap &> /dev/null
 rm -rf bower_bootstrap/*
