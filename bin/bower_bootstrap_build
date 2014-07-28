@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+git config --global user.email "manolo@plyfe.me"
+git config --global user.name "manolo"
+git config --global push.default simple
+
+# This specifies the repository we are going to work with.  This will most likely be set to 'ember'
+REPO_SLUG="plyfe/widgets-bootstrap"
+
+# This specifies the user who is associated to the GH_TOKEN
+USER="mfamilia"
+
+# This ensure that no directories within dist will be copied when script is run.
+INCLUDED_FILES=`find dist`
+CHANNEL="amber"
+
+echo -e "REPO_SLUG: ${REPO_SLUG}\n"
+echo -e "INCLUDED_FILES: ${INCLUDED_FILES}\n"
+
+if [ "${TRAVIS_TAG}" == "" ]; then
+  echo "Not a bower release branch.  Exiting!"
+  exit 0
+fi
+
+TAG_VERSION_LENGTH=${#TRAVIS_TAG}
+TAG_VERSION=${TRAVIS_TAG:1:$TAG_VERSION_LENGTH}
+
+echo -e "TRAVIS_TAG: ${TRAVIS_TAG}\n"
+echo -e "TAG_VERSION_LENGTH: ${TAG_VERSION_LENGTH}\n"
+echo -e "TAG_VERSION: ${TAG_VERSION}\n"
+echo -e "CHANNEL: ${CHANNEL}\n"
+
+# sending output to /dev/null to prevent GH_TOKEN leak on error
+git clone --branch ${CHANNEL} https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git bower_cms &> /dev/null
+rm -rf bower_cms/*
+cp -r dist/. bower_cms/dist
+cp *.json bower_cms/
+cd bower_cms
+git remote rm origin
+
+# sending output to /dev/null to prevent GH_TOKEN leak on error
+git remote add components https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git &> /dev/null
+git add -A
+git commit -m "Plyfe Cms Bower Auto build for https://github.com/plyfe/plyfe-cms/commits/${TRAVIS_COMMIT}."
+npm install grunt-bump
+cp ../Gruntfile.js Gruntfile.js
+git push --set-upstream components ${CHANNEL}
+grunt bump -setversion="${TAG_VERSION}" --force
+
+# sending output to /dev/null to prevent GH_TOKEN leak on error
+git push -fq components ${CHANNEL} &> /dev/null
+echo -e "Done\n"
