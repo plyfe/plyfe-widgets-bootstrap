@@ -41,8 +41,8 @@ git remote rm origin
 git remote add components https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git &> /dev/null
 git add -A
 git commit -m "Plyfe Cms Bower Auto build for https://github.com/plyfe/plyfe-widgets-bootstrap/commits/${TRAVIS_COMMIT}."
-npm install grunt-bump
 cp ../Gruntfile.js Gruntfile.js
+cp -r ../node_modules/. node_modules/
 cp -r ../src/. src/
 git push --set-upstream components ${CHANNEL}
 grunt bump -setversion="${TAG_VERSION}" --force
