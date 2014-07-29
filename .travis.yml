@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - '0.10'
+before_install: npm install -g grunt-cli
+cache:
+  directories:
+    - node_modules
+    - vendor
+after_success:
+  - bin/bower_bootstrap_build
+before_script:
+  - npm install -g bower
+  - bower install
+notifications:
+  slack: plyfe:9v3w34XtZWZ3ly3fYO39Elgz
+env:
+  global:
+    - secure: deKb9AgHRwgZ/2op9tM3U32PC4asHPh8LJF/2U8K44KhXfBhw/5394KX9loTP/0TO9L78njQ1sSan7ETVpMtmE5Jz3qtG+EegoRKiXjr5fCP2KyAYUWp7QO7q+rX9MfS/dDdJu2Q6ZiWe680NvANQ0yp8yDCUqIG0Ud/GQLN5Xk=
