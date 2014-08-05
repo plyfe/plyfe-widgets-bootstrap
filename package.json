@@ -3,7 +3,8 @@
   "version": "0.3.3",
   "description": "Plyfe's embedable widgets",
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "build": "grunt"
   },
   "keywords": [
     "plyfe"

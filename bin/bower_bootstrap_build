@@ -21,8 +21,17 @@ if [ "${TRAVIS_TAG}" == "" ]; then
   exit 0
 fi
 
-TAG_VERSION_LENGTH=${#TRAVIS_TAG}
-TAG_VERSION=${TRAVIS_TAG:1:$TAG_VERSION_LENGTH}
+case $TRAVIS_BRANCH in
+  'master') BRANCH_RELEASE=false ;;
+  *) BRANCH_RELEASE=true ;;
+esac
+
+if [ "$BRANCH_RELEASE" = true ]; then
+  TAG_VERSION=${TRAVIS_TAG}
+else
+  TAG_VERSION_LENGTH=${#TRAVIS_TAG}
+  TAG_VERSION=${TRAVIS_TAG:1:$TAG_VERSION_LENGTH}
+fi
 
 echo -e "TRAVIS_TAG: ${TRAVIS_TAG}\n"
 echo -e "TAG_VERSION_LENGTH: ${TAG_VERSION_LENGTH}\n"
@@ -40,15 +49,21 @@ cd bower_bootstrap
 git remote rm origin
 
 # sending output to /dev/null to prevent GH_TOKEN leak on error
-git remote add components https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git &> /dev/null
+git remote add origin https://${USER}:${GH_TOKEN}@github.com/${REPO_SLUG}.git &> /dev/null
 git add -A
 git commit -m "Plyfe Cms Bower Auto build for https://github.com/plyfe/plyfe-widgets-bootstrap/commits/${TRAVIS_COMMIT}."
 cp ../Gruntfile.js Gruntfile.js
 cp -r ../node_modules/. node_modules/
 cp -r ../src/. src/
-git push --set-upstream components ${CHANNEL}
-grunt bump -setversion="${TAG_VERSION}" --force
+
+git push --set-upstream origin ${CHANNEL} &> /dev/null
+if [ "$BRANCH_RELEASE" = true ]; then
+  git tag -a "${TAG_VERSION}" -m "Release for branch: ${TRAVIS_BRANCH}"
+  git push origin && git push origin --tags &> /dev/null
+else
+  grunt bump -setversion="${TAG_VERSION}" --force &> /dev/null
+fi
 
 # sending output to /dev/null to prevent GH_TOKEN leak on error
-git push -fq components ${CHANNEL} &> /dev/null
+git push -fq origin ${CHANNEL} &> /dev/null
 echo -e "Done\n"
