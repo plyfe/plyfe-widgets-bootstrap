@@ -1,8 +1,11 @@
 var initCallbackCalled = false;
-window.customInitCall = function() {
+var initCallbackCount = 0;
+function _customInitCallback() {
   'use strict';
   initCallbackCalled = true;
-};
+  initCallbackCount++;
+}
+window.customInitCall = _customInitCallback;
 
 /*global Plyfe */
 describe('Loaded', function() {
@@ -32,8 +35,27 @@ describe('Loaded', function() {
     if(initCallbackCalled) {
       done();
     } else {
-      window.customInitCall = done;
+      window.customInitCall = function() {
+        // Set the customInitCall back to the original fn handler in this file.
+        window.customInitCall = _customInitCallback;
+        done();
+      };
     }
+  });
+
+  it('should handle multiple <script> tags', function(done) {
+    var script = document.createElement('script');
+    script.src = '../dist/plyfe-widgets-bootstrap.js';
+    script.setAttribute('data-init-name', 'customInitCall');
+    script.onload = function() {
+      // wait a bit to make sure that the JS inside the second script tag has
+      // time to execute.
+      setTimeout(function() {
+        expect(initCallbackCount).to.be(1);
+        done();
+      }, 20);
+    };
+    document.body.appendChild(script);
   });
 
 });
