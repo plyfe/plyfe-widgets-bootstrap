@@ -13,6 +13,7 @@ define(function(require) {
   var widget = require('widget');
   var auth = require('auth');
   var switchboard = require('switchboard');
+  var environments = require('env');
 
   switchboard.setup();
 
@@ -27,8 +28,15 @@ define(function(require) {
     if(/\/plyfe-widgets-bootstrap.*?\.js(\?|#|$)/.test(script.src)) {
       settings.authToken = utils.dataAttr(script, 'auth-token', null);
       settings.scheme = utils.dataAttr(script, 'scheme', settings.scheme);
+      settings.env = utils.dataAttr(script, 'env', settings.env);
+
+      var env = environments[settings.env] || environments.production;
+
+      settings.domain = env.domain;
+      settings.port   = env.port;
+
       settings.domain = utils.dataAttr(script, 'domain', settings.domain);
-      settings.port = +utils.dataAttr(script, 'port') || settings.port; // '+' casts to int
+      settings.port   = +utils.dataAttr(script, 'port') || settings.port; // '+' casts to int
 
       settings.theme = utils.dataAttr(script, 'theme');
 

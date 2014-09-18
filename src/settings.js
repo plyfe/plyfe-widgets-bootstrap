@@ -11,6 +11,7 @@ define(function(require) {
 
   return {
     scheme: 'https',
+    env: 'production',
     domain: 'plyfe.me',
     port: 443,
     authToken: null,

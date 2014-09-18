@@ -135,12 +135,4 @@ module.exports = function(grunt) {
     'build',
     'mocha',
   ]);
-
-  grunt.registerTask('release', function(type) {
-    type = type || 'patch'; // Default release type
-    grunt.task.run('bump-only:' + type);
-    grunt.task.run('default');
-    grunt.task.run('bump-commit');
-  });
-
 };
