@@ -10,6 +10,7 @@ define(function(require) {
 
   var utils = require('utils');
   var settings = require('settings');
+  var environments = require('env');
 
   var widgets = [];
   var widgetCount = 0;
@@ -51,8 +52,14 @@ define(function(require) {
     if(!this.id) { throwAttrRequired('id'); }
 
     var scheme = utils.dataAttr(el, 'scheme', settings.scheme);
-    var domain = utils.dataAttr(el, 'domain', settings.domain);
-    var port   = utils.dataAttr(el, 'port', settings.port);
+
+    var env   = utils.dataAttr(el, 'env', settings.env);
+
+    var domain = environments[env].domain;
+    var port = environments[env].port;
+
+    domain = utils.dataAttr(el, 'domain', domain);
+    port   = utils.dataAttr(el, 'port', port);
 
     var height = +utils.dataAttr(el, 'height');
     if(!height) { throwAttrRequired('height'); }

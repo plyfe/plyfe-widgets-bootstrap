@@ -21,4 +21,11 @@ describe('Widget created', function() {
     expect(iframe.src).to.be('http://localhost/w/fake/rd/1?theme=drinkup&theme_data=%7B%22bg_color%22%3A%20%22%23FFFFFF%22%7D&treatment=B&height=100&transparent=true');
   });
 
+  // NOTE: depends on Plyfe.createWidgets() being called above.
+  it('should have found a custom URL for widget #2', function() {
+    var iframe = document.querySelector('#widget-3 > iframe');
+    expect(iframe).to.not.be(null);
+    expect(iframe.src).to.be('https://development.plyfe.me:0/w/fake/vs/5?theme=plyfe&height=100');
+  });
+
 });

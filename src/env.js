@@ -26,7 +26,7 @@ define(function(require) {
       domain: 'test.plyfe.me',
       port: 443
     },
-    dev: {
+    development: {
       domain: 'development.plyfe.me',
       port: 3001
     }
