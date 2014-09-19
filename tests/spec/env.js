@@ -11,7 +11,7 @@ describe('Loaded', function() {
   });
 
   it('should use the default test env port', function() {
-    expect(Plyfe.settings.port).to.be(443);
+    expect(Plyfe.settings.port).to.be(999);
   });
 
   it('should use https for port 443', function() {

@@ -53,11 +53,18 @@ define(function(require) {
 
     var scheme = utils.dataAttr(el, 'scheme', settings.scheme);
 
-    var env   = utils.dataAttr(el, 'env', settings.env);
+    var domain = settings.domain;
+    var port = settings.port;
 
-    var domain = environments[env].domain;
-    var port = environments[env].port;
+    // Override the domain & port in settings only if there is a data-env set
+    var env = utils.dataAttr(el, 'env');
+    if(env) {
+      domain = environments[env].domain;
+      port = environments[env].port;
+    }
 
+    // Now override the domain & port again if there is a data-domain or data-
+    // port present.
     domain = utils.dataAttr(el, 'domain', domain);
     port   = utils.dataAttr(el, 'port', port);
 
