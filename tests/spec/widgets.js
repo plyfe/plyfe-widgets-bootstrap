@@ -28,4 +28,10 @@ describe('Widget created', function() {
     expect(iframe.src).to.be('https://development.plyfe.me:0/w/fake/vs/5?theme=plyfe&height=100');
   });
 
+  // NOTE: depends on Plyfe.createWidgets() being called above.
+  it('should have the right URL for widget #4', function() {
+    var iframe = document.querySelector('#widget-4 > iframe');
+    expect(iframe).to.not.be(null);
+    expect(iframe.src).to.be('https://plyfe.me/s/5');
+  });
 });

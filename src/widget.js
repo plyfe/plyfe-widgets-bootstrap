@@ -43,13 +43,41 @@ define(function(require) {
 
   function Widget(el) {
     this.el = el;
-    this.venue = utils.dataAttr(el, 'venue');
-    this.type  = utils.dataAttr(el, 'type');
-    this.id    = utils.dataAttr(el, 'id');
 
-    if(!this.venue) { throwAttrRequired('venue'); }
-    if(!this.type) { throwAttrRequired('type'); }
-    if(!this.id) { throwAttrRequired('id'); }
+    this.slot = utils.dataAttr(el, 'slot');
+
+    var path = [];
+    var params = {};
+    var height = null;
+
+    // Slots are the new way to load a widget
+    if(this.slot) {
+      path = ['s', this.slot];
+    } else { // If no data-slot then we must be loading an old-style widget.
+      this.venue = utils.dataAttr(el, 'venue');
+      this.type  = utils.dataAttr(el, 'type');
+      this.id    = utils.dataAttr(el, 'id');
+
+      if(!this.venue) { throwAttrRequired('venue'); }
+      if(!this.type) { throwAttrRequired('type'); }
+      if(!this.id) { throwAttrRequired('id'); }
+
+      height = +utils.dataAttr(el, 'height');
+      if(!height) { throwAttrRequired('height'); }
+
+      path = ['w', this.venue, this.type, this.id];
+
+      params = {
+        theme:      utils.dataAttr(el, 'theme', settings.theme),
+        theme_data: utils.dataAttr(el, 'theme-overrides'),
+        treatment:  utils.dataAttr(el, 'treatment'),
+        height:     height
+      };
+
+      if(utils.dataAttr(el, 'transparent-bg')) {
+        params.transparent = 'true';
+      }
+    }
 
     var scheme = utils.dataAttr(el, 'scheme', settings.scheme);
 
@@ -67,22 +95,6 @@ define(function(require) {
     // port present.
     domain = utils.dataAttr(el, 'domain', domain);
     port   = utils.dataAttr(el, 'port', port);
-
-    var height = +utils.dataAttr(el, 'height');
-    if(!height) { throwAttrRequired('height'); }
-
-    var path = ['w', this.venue, this.type, this.id];
-
-    var params = {
-      theme:      utils.dataAttr(el, 'theme', settings.theme),
-      theme_data: utils.dataAttr(el, 'theme-overrides'),
-      treatment:  utils.dataAttr(el, 'treatment'),
-      height:     height
-    };
-
-    if(utils.dataAttr(el, 'transparent-bg')) {
-      params.transparent = 'true';
-    }
 
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
