@@ -54,18 +54,16 @@ define(function(require) {
     if(this.slot) {
       path = ['s', this.slot];
     } else { // If no data-slot then we must be loading an old-style widget.
-      this.venue = utils.dataAttr(el, 'venue');
       this.type  = utils.dataAttr(el, 'type');
       this.id    = utils.dataAttr(el, 'id');
 
-      if(!this.venue) { throwAttrRequired('venue'); }
       if(!this.type) { throwAttrRequired('type'); }
       if(!this.id) { throwAttrRequired('id'); }
 
       height = +utils.dataAttr(el, 'height');
       if(!height) { throwAttrRequired('height'); }
 
-      path = ['w', this.venue, this.type, this.id];
+      path = ['w', this.type, this.id];
 
       params = {
         theme:      utils.dataAttr(el, 'theme', settings.theme),
