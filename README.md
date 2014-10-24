@@ -25,8 +25,7 @@ Old Style Widgets
 The old style of specifying widets looked like this:
 ```html
 <div class="plyfe-widget"
-  data-venue="[venue_id]"
-  data-type="[widget_type_abbriviation]"
+  data-type="[widget_type_abbreviation]"
   data-id="[widget_id]">
 </div>
 ```
