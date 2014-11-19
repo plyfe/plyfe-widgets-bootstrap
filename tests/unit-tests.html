@@ -14,10 +14,10 @@
 
 <div id="mocha"></div>
 
-<script src="../node_modules/requirejs/require.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/expect.js/index.js"></script>
 <script src="../node_modules/sinon/pkg/sinon.js"></script>
+<script src="../node_modules/requirejs/require.js"></script>
 <script>mocha.setup('bdd');</script>
 
 <script>
@@ -40,14 +40,16 @@ var specs = [
   'spec/utils/addclass',
   'spec/switchboard',
   'spec/api',
-  'spec/login',
+  'spec/login'
 ];
 
 window.onload = function() {
+  "use strict";
+
   require(specs, function() {
     mocha.run();
-  })
-}
+  });
+};
 </script>
 
 </body>
