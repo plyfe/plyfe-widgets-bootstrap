@@ -183,14 +183,22 @@ define(function(require) {
     var cacheProperty = cssRules[property];
     if(cacheProperty) { return cacheProperty; }
 
-    objForEach(vendorPrefixMap, function(jsPropertyPrefix, cssPropertyPrefix) {
-      var jsProperty = dashedToCamel(jsPropertyPrefix + property); // hyphens are capitalized so a 'Moz-' + 'some-rule' = 'MozSomeRule'
-      if(typeof tempDiv.style[jsProperty] === 'string') {
-        var cssProperty = cssPropertyPrefix + property;
-        cssRules[property] = cssProperty;
-        return cssProperty;
-     }
-    });
+    for(var jsPropertyPrefix in vendorPrefixMap) {
+      if(vendorPrefixMap.hasOwnProperty(jsPropertyPrefix)) {
+        var cssPropertyPrefix = vendorPrefixMap[jsPropertyPrefix];
+        // console.log('Testing CSS:', jsPropertyPrefix, cssPropertyPrefix);
+        var jsProperty = dashedToCamel(jsPropertyPrefix + property); // hyphens are capitalized so a 'Moz-' + 'some-rule' = 'MozSomeRule'
+        // console.log('jsProperty:', jsProperty, '=', typeof tempDiv.style[jsProperty] === 'string');
+        if(typeof tempDiv.style[jsProperty] === 'string') {
+          var cssProperty = cssPropertyPrefix + property;
+          cssRules[property] = cssProperty;
+          // console.log('match found:', cssProperty);
+          return cssProperty;
+        }
+      }
+    }
+
+    return property;
   }
 
   function cssRule(property, value) {

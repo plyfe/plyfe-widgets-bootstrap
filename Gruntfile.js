@@ -119,16 +119,16 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', [
-    'jshint',
     'build',
-    'uglify:beautiful', // beautify first
-    'uglify:minified',
-    'copy'
   ]);
 
   grunt.registerTask('build', [
+    'jshint',
     'clean',
     'requirejs',
+    'uglify:beautiful', // beautify first
+    'uglify:minified',
+    'copy',
   ]);
 
   grunt.registerTask('test', [
