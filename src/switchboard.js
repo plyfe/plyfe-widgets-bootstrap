@@ -41,10 +41,26 @@ define(function(require) {
     }
   }
 
+  function findWidget(win) {
+    var widgets = widget.list;
+    for(var i = widgets.length - 1; i >= 0; i--) {
+      var wgt = widgets[i];
+      if(wgt.iframe.contentWindow === win) {
+        return wgt;
+      }
+    }
+  }
+
   function routeMessage(name, data, sourceWindow) {
     var parts = name.split(':');
 
     switch(parts[0]) {
+      case 'load':
+        // console.log('widget loaded: ', data);
+        var wgt = findWidget(sourceWindow);
+        wgt.ready(data.width, data.height);
+        break;
+
       case 'broadcast':
         broadcast(parts.slice(1).join(':'), data, sourceWindow);
         break;

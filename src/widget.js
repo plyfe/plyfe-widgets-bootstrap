@@ -14,10 +14,11 @@ define(function(require) {
 
   var widgets = [];
   var widgetCount = 0;
-  var WIDGET_READY_TIMEOUT = 5000;
 
   var WIDGET_CSS = '' +
     '.plyfe-widget {' +
+      'width: 0;' +
+      'height: 0;' +
       'opacity: 0;' +
       'overflow-x: hidden;' +
       utils.cssRule('transition', 'opacity 300ms') +
@@ -48,7 +49,6 @@ define(function(require) {
 
     var path = [];
     var params = {};
-    var height = null;
 
     // Slots are the new way to load a widget
     if(this.slot) {
@@ -60,16 +60,10 @@ define(function(require) {
       if(!this.type) { throwAttrRequired('type'); }
       if(!this.id) { throwAttrRequired('id'); }
 
-      height = +utils.dataAttr(el, 'height');
-      if(!height) { throwAttrRequired('height'); }
-
       path = ['w', this.type, this.id];
 
       params = {
-        theme:      utils.dataAttr(el, 'theme', settings.theme),
-        theme_data: utils.dataAttr(el, 'theme-overrides'),
-        treatment:  utils.dataAttr(el, 'treatment'),
-        height:     height
+        theme: utils.dataAttr(el, 'theme', settings.theme)
       };
 
       if(utils.dataAttr(el, 'transparent-bg')) {
@@ -96,25 +90,25 @@ define(function(require) {
 
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
-    function widgetIsReady() {
-      clearTimeout(readyTimeout);
-      utils.addClass(el, 'ready');
-    }
-
     var iframeName = 'plyfe-' + (++widgetCount);
     var iframe = document.createElement('iframe');
-    iframe.onload = widgetIsReady;
     iframe.name = iframeName;
     iframe.src = url;
     iframe.scrolling = 'no';
     iframe.frameBorder = '0'; // NOTE: For IE <= 8
     iframe.allowTransparency = 'true'; // For IE <= 8
-    utils.setStyles(iframe, { height: height });
     this.el.innerHTML = '';
     this.el.appendChild(iframe);
     this.iframe = iframe;
-    var readyTimeout = setTimeout(widgetIsReady, WIDGET_READY_TIMEOUT);
   }
+
+  Widget.prototype.ready = function widgetReady(width, height) {
+    utils.setStyles(this.el, {
+      width: width,
+      height: height
+    });
+    utils.addClass(this.el, 'ready');
+  };
 
   function createWidget(el) {
     if(!el && el.nodeType === 3) { throw new utils.PlyfeError('createWidget() must be called with a DOM element'); }
