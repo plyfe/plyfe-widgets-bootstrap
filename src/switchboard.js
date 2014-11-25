@@ -9,10 +9,10 @@ define(function(require) {
   'use strict';
 
   var utils = require('utils');
-  var widget = require('widget');
 
   var MESSAGE_PREFIX = 'plyfe:';
   var ORIGIN = '*';
+  var events = {};
 
   function pm(win, name, data) {
     if(!name) { throw new TypeError('Argument name required'); }
@@ -25,6 +25,9 @@ define(function(require) {
     if(!window.JSON) { return; }
 
     var payload = e.data;
+
+    // We expect our messages to be serialized JSON
+    if(typeof payload !== 'string') { return; }
 
     // We don't care what the message's origin is as long as it has the proper
     // prefix.
@@ -41,62 +44,48 @@ define(function(require) {
     }
   }
 
-  function findWidget(win) {
-    var widgets = widget.list;
-    for(var i = widgets.length - 1; i >= 0; i--) {
-      var wgt = widgets[i];
-      if(wgt.iframe.contentWindow === win) {
-        return wgt;
-      }
+  function findEventHandlers() {
+    // console.log('findEventHandlers', arguments);
+    var handlers = [];
+    for(var i = 0; i < arguments.length; i++) {
+      var arg = arguments[i];
+      handlers = handlers.concat(events[arg] || []);
     }
+    return handlers;
   }
 
   function routeMessage(name, data, sourceWindow) {
+    // console.log(name, data);
     var parts = name.split(':');
 
-    switch(parts[0]) {
-      case 'load':
-        // console.log('widget loaded: ', data);
-        var wgt = findWidget(sourceWindow);
-        wgt.ready(data.width, data.height);
-        break;
+    var handlers = findEventHandlers(name, events[parts[0] + ':*'], '*');
+    for(var i = 0; i < handlers.length; i++) {
+      handlers[i](name, data, sourceWindow);
+    }
 
-      case 'broadcast':
-        broadcast(parts.slice(1).join(':'), data, sourceWindow);
-        break;
-
-      // TODO: remove later
-      case 'sizechanged':
-        break;
-
-      // case 'dialog':
-      //   dialogMessage(parts[1], data);
-      //   break;
-
-      default:
-        console.warn("Switchboard recieved a unhandled '" + name + "' message", data);
+    if(handlers.length === 0) {
+      console.warn("Switchboard recieved a unhandled '" + name + "' message", data);
     }
   }
 
-  // function dialogMessage(action, data) {
-  //   switch(action) {
-  //     case 'open':
-  //       dialog.open(data.src, data.width, data.height);
-  //       break;
-  //     case 'close':
-  //       dialog.close();
-  //       break;
-  //     default:
-  //       console.warn("Switchboard recieved unknown dialog action '" + action + "'", data);
-  //   }
-  // }
+  function addListener(name, callback) {
+    if(typeof callback !== 'function') { throw new TypeError('second argument must be a function'); }
 
-  function broadcast(name, data, sourceWindow) {
-    widget.forEach(function(wgt) {
-      if(wgt.iframe.contentWindow !== sourceWindow) {
-        pm(wgt.iframe.contentWindow, name, data);
+    var listeners = events[name] = events[name] || [];
+    listeners.push(callback);
+  }
+
+  function removeListener(name, callback) {
+    if(callback) {
+      var handlers = events[name] || [];
+      for(var i = handlers.length - 1; i >= 0; i--) {
+        if(handlers[i] === callback) {
+          handlers.splice(i, 1);
+        }
       }
-    });
+    } else {
+      delete events[name];
+    }
   }
 
   function setup() {
@@ -105,6 +94,9 @@ define(function(require) {
 
   return {
     setup: setup,
-    postMessage: pm
+    send: pm,
+    on: addListener,
+    off: removeListener,
+    events: events
   };
 });

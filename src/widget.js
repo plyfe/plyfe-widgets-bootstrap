@@ -11,6 +11,7 @@ define(function(require) {
   var utils = require('utils');
   var settings = require('settings');
   var environments = require('env');
+  var switchboard = require('switchboard');
 
   var widgets = [];
   var widgetCount = 0;
@@ -37,6 +38,19 @@ define(function(require) {
     '}';
 
   utils.customStyleSheet(WIDGET_CSS, { id: 'plyfe-widget-css' });
+
+  function broadcast(name, data, sourceWindow) {
+    var broadcastPrefix = 'broadcast:';
+
+    for(var i = 0; i < widgets.length; i++) {
+      var wgt = widgets[i];
+      if(wgt.iframe.contentWindow !== sourceWindow) {
+        // strip "broadcast:" from event name
+        var eventName = name.substr(broadcastPrefix.length);
+        switchboard.send(wgt.iframe.contentWindow, eventName, data);
+      }
+    }
+  }
 
   function throwAttrRequired(attr) {
     throw new utils.PlyfeError('data-' + attr + ' attribute required');
@@ -134,16 +148,20 @@ define(function(require) {
     }
   }
 
-  function forEach(callback) {
+  switchboard.on('broadcast:*', broadcast);
+  switchboard.on('load', function loadEvent(name, data, sourceWindow) {
+    // console.log('widget loaded: ', data);
     for(var i = widgets.length - 1; i >= 0; i--) {
-      callback(widgets[i]);
+      var wgt = widgets[i];
+      if(wgt.iframe.contentWindow === sourceWindow) {
+        wgt.ready(data.width, data.height);
+      }
     }
-  }
+  });
 
   return {
     create: createWidget,
     distroy: destroyWidget,
-    list: widgets,
-    forEach: forEach
+    list: widgets
   };
 });
