@@ -18,8 +18,6 @@ define(function(require) {
   switchboard.setup();
 
   var globalInitFnName = 'plyfeAsyncInit';
-  // NOTE: Have to use `=== false`. Check build_frags/start.frag for the hack.
-  var loadedViaRealAMDLoader = !window.Plyfe || window.Plyfe.amd !== false;
 
   // Find <script> tag that loaded this code
   var scripts = document.getElementsByTagName('script');
@@ -45,25 +43,21 @@ define(function(require) {
     }
   }
 
-  // The globalInitFnName and the auto-creation of widgets doesn't make sense in
-  // the AMD load case.
-  if(!loadedViaRealAMDLoader) {
-    utils.domReady(function() {
-      if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
-        // NOTE: Have to use setTimeout to make sure that the rest of the
-        // main.js executes first before we call the callback. If we don't then
-        // there is a race condition where the window.Plyfe object won't exist
-        // yet.
-        setTimeout(window[globalInitFnName], 0);
-      } else if(settings.authToken) { // Can login via SSO then load widgets
-        auth.logIn(function() {
-          createWidgets();
-        });
-      } else {
+  utils.domReady(function() {
+    if(window[globalInitFnName] && typeof window[globalInitFnName] === 'function') {
+      // NOTE: Have to use setTimeout to make sure that the rest of the
+      // main.js executes first before we call the callback. If we don't then
+      // there is a race condition where the window.Plyfe object won't exist
+      // yet.
+      setTimeout(window[globalInitFnName], 0);
+    } else if(settings.authToken) { // Can login via SSO then load widgets
+      auth.logIn(function() {
         createWidgets();
-      }
-    });
-  }
+      });
+    } else {
+      createWidgets();
+    }
+  });
 
   function createWidgets() {
     var divs = document.querySelectorAll(settings.selector);

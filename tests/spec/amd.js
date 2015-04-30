@@ -1,12 +1,9 @@
-require(['plyfe-widgets-bootstrap'], function(plyfe) {
-  'use strict';
+/*global Plyfe */
 
-  describe('Loaded via an AMD loader', function() {
+describe('Loaded alongside require.js', function() {
+  "use strict";
 
-    it('should have loaded', function(done) {
-      expect(plyfe).to.be.ok();
-      done();
-    });
+  it('should have loaded', function() {
+    expect(Plyfe).to.be.ok();
   });
-
 });

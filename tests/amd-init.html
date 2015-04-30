@@ -14,25 +14,27 @@
 
 <div id="mocha"></div>
 
-<script src="../node_modules/requirejs/require.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/expect.js/index.js"></script>
-<script>mocha.setup('bdd');</script>
+<script>
+mocha.setup('bdd');
+mocha.checkLeaks();
+</script>
 
+<script src="../node_modules/requirejs/require.js"></script>
 <script src="spec/amd.js"></script>
+<script src="../dist/plyfe-widgets-bootstrap.js"></script>
 
 <script>
 require.config({
-  baseUrl: '../dist',
+  baseUrl: '../dist'
 });
 
-mocha.checkLeaks();
-
 window.onload = function() {
-  require(['plyfe-widgets-bootstrap'], function() {
-    mocha.run();
-  });
-}
+  "use strict";
+
+  mocha.run();
+};
 
 </script>
 
