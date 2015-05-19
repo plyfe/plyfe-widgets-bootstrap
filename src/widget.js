@@ -18,7 +18,6 @@ define(function(require) {
 
   var WIDGET_CSS = '' +
     '.plyfe-widget {' +
-      'width: 0;' +
       'height: 0;' +
       'opacity: 0;' +
       'overflow-x: hidden;' +
@@ -38,6 +37,15 @@ define(function(require) {
     '}';
 
   utils.customStyleSheet(WIDGET_CSS, { id: 'plyfe-widget-css' });
+
+  function findWidgetFromSourceWindow(sourceWindow) {
+    for(var i = widgets.length - 1; i >= 0; i--) {
+      var wgt = widgets[i];
+      if(wgt.iframe.contentWindow === sourceWindow) {
+        return wgt;
+      }
+    }
+  }
 
   function broadcast(name, data, sourceWindow) {
     var broadcastPrefix = 'broadcast:';
@@ -116,10 +124,12 @@ define(function(require) {
     this.iframe = iframe;
   }
 
-  Widget.prototype.ready = function widgetReady(width, height) {
+  Widget.prototype.ready = function widgetReady(data) {
     utils.setStyles(this.el, {
-      width: width,
-      height: height
+      width: data.width,
+      height: data.height,
+      minWidth: data.minWidth,
+      minHeight: data.minHeight
     });
     utils.addClass(this.el, 'ready');
   };
@@ -151,12 +161,14 @@ define(function(require) {
   switchboard.on('broadcast:*', broadcast);
   switchboard.on('load', function loadEvent(name, data, sourceWindow) {
     // console.log('widget loaded: ', data);
-    for(var i = widgets.length - 1; i >= 0; i--) {
-      var wgt = widgets[i];
-      if(wgt.iframe.contentWindow === sourceWindow) {
-        wgt.ready(data.width, data.height);
-      }
-    }
+    findWidgetFromSourceWindow(sourceWindow).ready(data);
+  });
+
+  switchboard.on('height', function heightChanged(name, height, sourceWindow) {
+    // console.log('widget loaded: ', data);
+    utils.setStyles(findWidgetFromSourceWindow(sourceWindow).el, {
+      height: height
+    });
   });
 
   return {
