@@ -126,9 +126,9 @@ define(function(require) {
 
   Widget.prototype.ready = function widgetReady(data) {
     utils.setStyles(this.el, {
-      width: data.width,
-      height: data.height,
       minWidth: data.minWidth,
+      maxWidth: data.maxWidth,
+      height: data.height,
       minHeight: data.minHeight
     });
     utils.addClass(this.el, 'ready');
