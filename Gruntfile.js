@@ -13,13 +13,16 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha');
 
   var packageJSON = grunt.file.readJSON('package.json');
-  var majorVersion = packageJSON.version.split('.')[0];
+  var versions = packageJSON.version.split('.');
+  var majorVersion = versions[0];
+  var minorVersion = versions[1];
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     license: grunt.file.read('src/build_frags/copyright.js'),
 
     majorVersion: majorVersion,
+    minorVersion: minorVersion,
 
     clean: ['dist'],
 
@@ -74,11 +77,11 @@ module.exports = function(grunt) {
         files: [
           {
             src: 'dist/plyfe-widgets-bootstrap.js',
-            dest: 'dist/plyfe-widgets-bootstrap-v<%= majorVersion %>.js'
+            dest: 'dist/plyfe-widgets-bootstrap-v<%= majorVersion %>.<%= minorVersion %>.js'
           },
           {
             src: 'dist/plyfe-widgets-bootstrap.min.js',
-            dest: 'dist/plyfe-widgets-bootstrap-v<%= majorVersion %>.min.js'
+            dest: 'dist/plyfe-widgets-bootstrap-v<%= majorVersion %>.<%= minorVersion %>.min.js'
           },
         ]
       },

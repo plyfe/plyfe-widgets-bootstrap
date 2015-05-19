@@ -130,7 +130,9 @@ define(function(require) {
 
   function setStyles(el, styles) {
     objForEach(styles, function(name, value) {
-      el.style[name] = typeof value === 'number' ? value + 'px' : value;
+      if(value !== null && value !== _undefined) {
+        el.style[name] = typeof value === 'number' ? value + 'px' : value;
+      }
     });
   }
 
