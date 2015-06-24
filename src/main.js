@@ -70,11 +70,22 @@ define(function(require) {
     return widget.create(el);
   }
 
-  return {
+  function cardStart(data) {
+    var user = data.user; // todo ->
+    var card = data.card; // defend against bad data
+    plyfeObj.onCardStart.call(plyfeObj, user, card);
+  }
+
+  switchboard.on('card:start', cardStart);
+
+  var plyfeObj = {
     settings: settings,
     createWidgets: createWidgets,
     createWidget: createWidget,
-    logIn: auth.logIn
+    logIn: auth.logIn,
+    onCardStart: function(){}
   };
+
+  return plyfeObj;
 
 });
