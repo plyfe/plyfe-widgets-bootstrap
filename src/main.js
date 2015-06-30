@@ -70,11 +70,28 @@ define(function(require) {
     return widget.create(el);
   }
 
-  return {
+  function cardEvent(eventName, data) {
+    // default to id of 0 when there is no data
+    var user = utils.objectMerge(data.user, {id: 0});
+    var card = utils.objectMerge(data.card, {id: 0, type: 'no_type'});
+    plyfeObj['onCard' + eventName].call(plyfeObj, card, user);
+  }
+
+  switchboard.on('card:start', function(name, data) { cardEvent('Start', data); });
+  switchboard.on('card:complete', function(name, data) { cardEvent('Complete', data); });
+
+  var onCardStart = window.Plyfe && window.Plyfe.onCardStart || function(){} ;
+  var onCardComplete = window.Plyfe && window.Plyfe.onCardComplete || function(){} ;
+
+  var plyfeObj = {
     settings: settings,
     createWidgets: createWidgets,
     createWidget: createWidget,
-    logIn: auth.logIn
+    logIn: auth.logIn,
+    onCardStart: onCardStart,
+    onCardComplete: onCardComplete
   };
+
+  return plyfeObj;
 
 });

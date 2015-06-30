@@ -1,35 +1,67 @@
-define(['api', 'utils', 'settings'], function(api, utils, settings) {
+/*global Plyfe */
+describe('Api', function() {
   'use strict';
 
-  describe('API', function() {
+  it('should send card and user data with cardStart', function(done) {
+    Plyfe.onCardStart = function(card, user) {
+      expect(card).to.not.be(null);
+      expect(user).to.not.be(null);
+      expect(card.id).to.be(1);
+      expect(card.type).to.be('poll_challenge');
+      expect(user.id).to.be(1);
+      done();
+    };
 
-    it('should work via JSONP', function(done) {
-      var req = new api.JSONPRequest('callback1');
-      req.open('get', 'fixtures/api/jsonp/simple.js');
-      req.onreadystatechange = function() {
-        expect(req.responseText).to.eql({ foo: 'bar' });
-        done();
-      };
-      req.send();
-    });
+    var data = {
+      card: {id: 1, type: 'poll_challenge'},
+      user: {id: 1}
+    };
 
-    it('should build the correct API URL', function() {
-      expect(api.buildApiUrl('/foo')).to.be('https://plyfe.me/api/foo');
-    });
+    window.postMessage('plyfe:card:start' + '\n' + JSON.stringify(data), '*');
+  });
 
-    it('should allow URL overrides via settings', function() {
-      settings.scheme = 'http';
-      settings.domain = 'example.com';
-      settings.port   = 80;
-      expect(api.buildApiUrl('/foo')).to.be('http://example.com/api/foo');
+  it("should send default data with cardStart", function(done) {
+    Plyfe.onCardStart = function(card, user) {
+      expect(card).to.not.be(null);
+      expect(user).to.not.be(null);
+      expect(card.id).to.be(0);
+      expect(card.type).to.be('no_type');
+      expect(user.id).to.be(0);
+      done();
+    };
 
-      settings.scheme = 'https';
-      settings.domain = 'development.plyfe.me';
-      settings.port   = 3001;
-      expect(api.buildApiUrl('/foo/bar')).to.be('https://development.plyfe.me:3001/api/foo/bar');
-      expect(api.buildApiUrl('/foo/bar?a=1')).to.be('https://development.plyfe.me:3001/api/foo/bar?a=1');
-    });
+    window.postMessage('plyfe:card:start' + '\n' + JSON.stringify({}), '*');
+  });
 
+  it('should send card and user data with cardComplete', function(done) {
+    Plyfe.onCardComplete = function(card, user) {
+      expect(card).to.not.be(null);
+      expect(user).to.not.be(null);
+      expect(card.id).to.be(1);
+      expect(card.type).to.be('poll_challenge');
+      expect(user.id).to.be(1);
+      done();
+    };
+
+    var data = {
+      card: {id: 1, type: 'poll_challenge'},
+      user: {id: 1}
+    };
+
+    window.postMessage('plyfe:card:complete' + '\n' + JSON.stringify(data), '*');
+  });
+
+  it("should send default data with cardComplete", function(done) {
+    Plyfe.onCardComplete = function(card, user) {
+      expect(card).to.not.be(null);
+      expect(user).to.not.be(null);
+      expect(card.id).to.be(0);
+      expect(card.type).to.be('no_type');
+      expect(user.id).to.be(0);
+      done();
+    };
+
+    window.postMessage('plyfe:card:complete' + '\n' + JSON.stringify({}), '*');
   });
 
 });

@@ -238,7 +238,15 @@ define(function(require) {
     this.name = 'PlyfeError';
     this.message = (message || '');
   }
+
   PlyfeError.prototype = Error.prototype;
+
+  function objectMerge(obj, defaultObj){
+    var mergedObj = {};
+    for (var k in (defaultObj || {})) { mergedObj[k] = defaultObj[k]; }
+    for (var j in (obj || {})) { mergedObj[j] = obj[j]; }
+    return mergedObj;
+  }
 
   return {
     head: head,
@@ -258,6 +266,7 @@ define(function(require) {
     uniqueString: uniqueString,
     trim: trim,
     addClass: addClass,
-    PlyfeError: PlyfeError
+    PlyfeError: PlyfeError,
+    objectMerge: objectMerge
   };
 });
