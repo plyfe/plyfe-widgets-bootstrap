@@ -35,26 +35,7 @@ In your custom initialization function you can change setting that you want the 
 
 You can customize the settings the bootstrap JS will use to load cards by either editing data attributes on the `<script>` tag or by customizing settings in a custom initialization function.
 
-The following is the list of settings defined in `Plyfe.settings`.
-
-- `scheme`: The HTTP scheme to use when constructing the slot URL to plyfe.me. (**default** `'https'`)
-- `env`: The environment to point to. See the (environment.js)[https://github.com/plyfe/plyfe-widgets-bootstrap/blob/master/src/env.js] file for the list of valid environments. (**default** `'production'`)
-- `domain`: Override for domain specified by `env`. (**default**: `'plyfe.me'`)
-- `port`: Override for port specified by `env`. (**default**: `'443'`)
-- `authToken`: A valid auth token returned by the OAuth call to plyfe.me. Used for Single Sign On. (**default** `null`)
-- `selector`: The CSS Selector to use to find cards. (**default**: `'.plyfe-widget'`)
-- `theme`: The default theme to use for all cards. (**DEPRECATED! default** `null`)
-
-#### Data attributes
-
-Settings can also be defined by adding data attributues to the bootstrap JS `<script>` tag.
-
-- data-auth-token
-- data-scheme
-- data-env
-- data-domain
-- data-port
-- data-theme
+You can change the CSS selector used by `createWidgets()` by changing the `Plyfe.settings.selector` setting.
 
 #### Plyfe Object
 
@@ -63,6 +44,5 @@ The bootstrap JS file creates a `Plyfe` global on `window`. It has the following
 - `settings`: Exposes the settings object
 - `createWidgets`: Creates all cards found by the `Plyfe.settings.selector`
 - `createWidget`: Create one widget manually by passing in the HTML element (e.g. `Plyfe.createWidget(document.getElementById('custom-widget'));`).
-- `logIn`: Complete the single signon process by authenticating the `authToken`.
 - `onCardStart`: Callback function that is called with `card` and `user` objects each time a user first interacts with a card.
 - `onCardComple`: Callback function that is called with `card` and `user` objects each time a user completes a card.
