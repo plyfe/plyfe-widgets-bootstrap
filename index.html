@@ -84,38 +84,7 @@
 
 <p>You can customize the settings the bootstrap JS will use to load cards by either editing data attributes on the <code>&lt;script&gt;</code> tag or by customizing settings in a custom initialization function.</p>
 
-<p>The following is the list of settings defined in <code>Plyfe.settings</code>.</p>
-
-<ul>
-<li>
-<code>scheme</code>: The HTTP scheme to use when constructing the slot URL to plyfe.me. (<strong>default</strong> <code>'https'</code>)</li>
-<li>
-<code>env</code>: The environment to point to. See the (environment.js)[<a href="https://github.com/plyfe/plyfe-widgets-bootstrap/blob/master/src/env.js">https://github.com/plyfe/plyfe-widgets-bootstrap/blob/master/src/env.js</a>] file for the list of valid environments. (<strong>default</strong> <code>'production'</code>)</li>
-<li>
-<code>domain</code>: Override for domain specified by <code>env</code>. (<strong>default</strong>: <code>'plyfe.me'</code>)</li>
-<li>
-<code>port</code>: Override for port specified by <code>env</code>. (<strong>default</strong>: <code>'443'</code>)</li>
-<li>
-<code>authToken</code>: A valid auth token returned by the OAuth call to plyfe.me. Used for Single Sign On. (<strong>default</strong> <code>null</code>)</li>
-<li>
-<code>selector</code>: The CSS Selector to use to find cards. (<strong>default</strong>: <code>'.plyfe-widget'</code>)</li>
-<li>
-<code>theme</code>: The default theme to use for all cards. (<strong>DEPRECATED! default</strong> <code>null</code>)</li>
-</ul>
-
-<h4>
-<a id="data-attributes" class="anchor" href="#data-attributes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data attributes</h4>
-
-<p>Settings can also be defined by adding data attributues to the bootstrap JS <code>&lt;script&gt;</code> tag.</p>
-
-<ul>
-<li>data-auth-token</li>
-<li>data-scheme</li>
-<li>data-env</li>
-<li>data-domain</li>
-<li>data-port</li>
-<li>data-theme</li>
-</ul>
+<p>You can change the CSS selector used by <code>createWidgets()</code> by changing the <code>Plyfe.settings.selector</code> setting.</p>
 
 <h4>
 <a id="plyfe-object" class="anchor" href="#plyfe-object" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plyfe Object</h4>
@@ -130,8 +99,6 @@
 </li>
 <li>
 <code>createWidget</code>: Create one widget manually by passing in the HTML element (e.g. <code>Plyfe.createWidget(document.getElementById('custom-widget'));</code>).</li>
-<li>
-<code>logIn</code>: Complete the single signon process by authenticating the <code>authToken</code>.</li>
 <li>
 <code>onCardStart</code>: Callback function that is called with <code>card</code> and <code>user</code> objects each time a user first interacts with a card.</li>
 <li>
