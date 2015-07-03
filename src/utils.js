@@ -1,5 +1,5 @@
 /*
-* @license plyfe-widgets-bootstrap Copyright (c) 2014, Plyfe Inc.
+* @license plyfe-widgets-bootstrap Copyright (c) 2015, Plyfe Inc.
 * All Rights Reserved.
 * Available via the MIT license.
 * see: http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE for details
@@ -207,17 +207,6 @@ define(function(require) {
     return findSupportedCSSPropertyName(property) + ': ' + value + ';';
   }
 
-  function uniqueString(size) {
-    size = +size || 0;
-    var s = '';
-    while(s.length < size) {
-      s += Math.random()
-        .toString(36) // convert to base 36 using a-z0-9
-        .substring(2); // chop of leading '0.' from Math.random
-    }
-    return s.substr(0, size);
-  }
-
   function trim(s) {
     return s.replace(/^\s+|\s+$/g, '');
   }
@@ -263,7 +252,6 @@ define(function(require) {
     camelToDashed: camelToDashed,
     customStyleSheet: customStyleSheet,
     cssRule: cssRule,
-    uniqueString: uniqueString,
     trim: trim,
     addClass: addClass,
     PlyfeError: PlyfeError,

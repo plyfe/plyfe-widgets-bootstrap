@@ -1,5 +1,5 @@
 /*
-* @license plyfe-widgets-bootstrap Copyright (c) 2014, Plyfe Inc.
+* @license plyfe-widgets-bootstrap Copyright (c) 2015, Plyfe Inc.
 * All Rights Reserved.
 * Available via the MIT license.
 * see: http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE for details
@@ -71,11 +71,12 @@ define(function(require) {
 
     var path = [];
     var params = {};
+    var scheme = utils.dataAttr(el, 'scheme', settings.scheme);
 
-    // Slots are the new way to load a widget
+    // If data-slot exists then load using an s-route
     if(this.slot) {
       path = ['s', this.slot];
-    } else { // If no data-slot then we must be loading an old-style widget.
+    } else { // If no data-slot then we must be loading a w-route widget.
       this.type  = utils.dataAttr(el, 'type');
       this.id    = utils.dataAttr(el, 'id');
 
@@ -83,17 +84,11 @@ define(function(require) {
       if(!this.id) { throwAttrRequired('id'); }
 
       path = ['w', this.type, this.id];
-
-      params = {
-        theme: utils.dataAttr(el, 'theme', settings.theme)
-      };
-
-      if(utils.dataAttr(el, 'transparent-bg')) {
-        params.transparent = 'true';
-      }
     }
 
-    var scheme = utils.dataAttr(el, 'scheme', settings.scheme);
+    if(utils.dataAttr(el, 'transparent-bg')) {
+      params.transparent = 'true';
+    }
 
     var domain = settings.domain;
     var port = settings.port;

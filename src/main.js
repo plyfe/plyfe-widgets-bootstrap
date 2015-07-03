@@ -1,5 +1,5 @@
 /*
-* @license plyfe-widgets-bootstrap Copyright (c) 2014, Plyfe Inc.
+* @license plyfe-widgets-bootstrap Copyright (c) 2015, Plyfe Inc.
 * All Rights Reserved.
 * Available via the MIT license.
 * see: http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE for details
@@ -11,7 +11,6 @@ define(function(require) {
   var utils = require('utils');
   var settings = require('settings');
   var widget = require('widget');
-  var auth = require('auth');
   var switchboard = require('switchboard');
   var environments = require('env');
 
@@ -24,7 +23,6 @@ define(function(require) {
   for(var i = scripts.length - 1; i >= 0; i--) {
     var script = scripts[i];
     if(/\/plyfe-widgets-bootstrap.*?\.js(\?|#|$)/.test(script.src)) {
-      settings.authToken = utils.dataAttr(script, 'auth-token', null);
       settings.scheme = utils.dataAttr(script, 'scheme', settings.scheme);
       settings.env = utils.dataAttr(script, 'env', settings.env);
 
@@ -35,8 +33,6 @@ define(function(require) {
 
       settings.domain = utils.dataAttr(script, 'domain', settings.domain);
       settings.port   = +utils.dataAttr(script, 'port') || settings.port; // '+' casts to int
-
-      settings.theme = utils.dataAttr(script, 'theme');
 
       globalInitFnName = utils.dataAttr(script, 'init-name', globalInitFnName);
       break;
@@ -50,10 +46,6 @@ define(function(require) {
       // there is a race condition where the window.Plyfe object won't exist
       // yet.
       setTimeout(window[globalInitFnName], 0);
-    } else if(settings.authToken) { // Can login via SSO then load widgets
-      auth.logIn(function() {
-        createWidgets();
-      });
     } else {
       createWidgets();
     }
@@ -87,11 +79,9 @@ define(function(require) {
     settings: settings,
     createWidgets: createWidgets,
     createWidget: createWidget,
-    logIn: auth.logIn,
     onCardStart: onCardStart,
     onCardComplete: onCardComplete
   };
 
   return plyfeObj;
-
 });

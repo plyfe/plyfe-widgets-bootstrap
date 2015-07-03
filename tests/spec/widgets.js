@@ -11,21 +11,21 @@ describe('Widget created', function() {
     Plyfe.createWidgets();
     var iframe = document.querySelector('#widget-1 > iframe');
     expect(iframe).to.not.be(null);
-    expect(iframe.src).to.be('https://plyfe.me/w/rd/4?theme=plyfe');
+    expect(iframe.src).to.be('https://plyfe.me/w/rd/4');
   });
 
   // NOTE: depends on Plyfe.createWidgets() being called above.
   it('should have found a custom URL for widget #2', function() {
     var iframe = document.querySelector('#widget-2 > iframe');
     expect(iframe).to.not.be(null);
-    expect(iframe.src).to.be('http://localhost/w/rd/1?theme=drinkup&transparent=true');
+    expect(iframe.src).to.be('http://localhost/w/rd/1?transparent=true');
   });
 
   // NOTE: depends on Plyfe.createWidgets() being called above.
-  it('should have found a custom URL for widget #2', function() {
+  it('should have found a custom URL for widget #3', function() {
     var iframe = document.querySelector('#widget-3 > iframe');
     expect(iframe).to.not.be(null);
-    expect(iframe.src).to.be('https://development.plyfe.me:0/w/vs/5?theme=plyfe');
+    expect(iframe.src).to.be('https://development.plyfe.me:0/w/vs/5?transparent=true');
   });
 
   // NOTE: depends on Plyfe.createWidgets() being called above.

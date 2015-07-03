@@ -2,7 +2,7 @@
  * Plyfe Widgets Library v<%= pkg.version %>
  * http://plyfe.com/
  *
- * Copyright 2014, Plyfe Inc.
+ * Copyright 2015, Plyfe Inc.
  *
  * Available via the MIT license.
  * http://github.com/plyfe/plyfe-widgets-bootstrap/LICENSE
