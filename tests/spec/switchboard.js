@@ -12,7 +12,7 @@ define(['switchboard'], function(switchboard) {
         done();
       });
 
-      switchboard.send(window, 'testing', {});
+      switchboard.send({}, 'testing', window);
     });
 
     it('should ignore un-serialized object payloads', function(done) {

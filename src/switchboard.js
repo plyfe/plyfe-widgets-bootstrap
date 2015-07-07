@@ -14,7 +14,7 @@ define(function(require) {
   var ORIGIN = '*';
   var events = {};
 
-  function pm(win, name, data) {
+  function pm(data, name, win) {
     if(!name) { throw new TypeError('Argument name required'); }
     // console.log('pm(', win, ',' + name +', ', JSON.stringify(data),')');
     win.postMessage(MESSAGE_PREFIX + name + '\n' + JSON.stringify(data), ORIGIN);
@@ -38,7 +38,7 @@ define(function(require) {
       var name = payload.substring(MESSAGE_PREFIX.length, newlinePos);
       var data = JSON.parse(payload.substr(newlinePos + 1)); // +1 is '\n'
 
-      routeMessage(name, data, e.source);
+      routeMessage(data, name, e.source);
 
       // console.log('host recieved data: ', name, ':', data);
     }
@@ -54,13 +54,13 @@ define(function(require) {
     return handlers;
   }
 
-  function routeMessage(name, data, sourceWindow) {
+  function routeMessage(data, name, sourceWindow) {
     // console.log(name, data);
     var parts = name.split(':');
 
     var handlers = findEventHandlers(name, events[parts[0] + ':*'], '*');
     for(var i = 0; i < handlers.length; i++) {
-      handlers[i](name, data, sourceWindow);
+      handlers[i](data, name, sourceWindow);
     }
 
     if(handlers.length === 0) {
