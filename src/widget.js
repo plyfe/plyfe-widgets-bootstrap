@@ -47,7 +47,7 @@ define(function(require) {
     }
   }
 
-  function broadcast(name, data, sourceWindow) {
+  function broadcast(data, name, sourceWindow) {
     var broadcastPrefix = 'broadcast:';
 
     for(var i = 0; i < widgets.length; i++) {
@@ -55,7 +55,7 @@ define(function(require) {
       if(wgt.iframe.contentWindow !== sourceWindow) {
         // strip "broadcast:" from event name
         var eventName = name.substr(broadcastPrefix.length);
-        switchboard.send(wgt.iframe.contentWindow, eventName, data);
+        switchboard.send(data, eventName, wgt.iframe.contentWindow);
       }
     }
   }
@@ -154,12 +154,12 @@ define(function(require) {
   }
 
   switchboard.on('broadcast:*', broadcast);
-  switchboard.on('load', function loadEvent(name, data, sourceWindow) {
+  switchboard.on('load', function loadEvent(data, name, sourceWindow) {
     // console.log('widget loaded: ', data);
     findWidgetFromSourceWindow(sourceWindow).ready(data);
   });
 
-  switchboard.on('height', function heightChanged(name, height, sourceWindow) {
+  switchboard.on('height', function heightChanged(height, name, sourceWindow) {
     // console.log('widget loaded: ', data);
     utils.setStyles(findWidgetFromSourceWindow(sourceWindow).el, {
       height: height
