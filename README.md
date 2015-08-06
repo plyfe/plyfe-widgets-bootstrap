@@ -18,6 +18,18 @@ On [plyfe.com](http://plyfe.com/) there are [examples of live cards](http://plyf
 <div class="plyfe-widget" data-slot="S8d"></div>
 ```
 
+Additional Data Attributes
+--------------------------
+
+Passing an external custom id through slot codes is support by adding the following,
+
+`data-custom-id="#{custom_id}`
+
+```html
+<script src="//d2hlj83egq3ows.cloudfront.net/components/plyfe-widgets-bootstrap/dist/plyfe-widgets-bootstrap-v1.1.min.js"></script>
+<div class="plyfe-widget" data-slot="S8d" data-custom-id="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"></div>
+```
+
 API
 ---
 
