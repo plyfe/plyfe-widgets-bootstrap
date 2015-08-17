@@ -105,6 +105,11 @@ define(function(require) {
     domain = utils.dataAttr(el, 'domain', domain);
     port   = utils.dataAttr(el, 'port', port);
 
+    var customId = utils.dataAttr(el, 'custom-id');
+    if(customId) {
+      params.custom_id = customId;
+    }
+
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
     var iframeName = 'plyfe-' + (++widgetCount);
