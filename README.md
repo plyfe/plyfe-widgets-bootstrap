@@ -57,4 +57,5 @@ The bootstrap JS file creates a `Plyfe` global on `window`. It has the following
 - `createWidgets`: Creates all cards found by the `Plyfe.settings.selector`
 - `createWidget`: Create one widget manually by passing in the HTML element (e.g. `Plyfe.createWidget(document.getElementById('custom-widget'));`).
 - `onCardStart`: Callback function that is called with `card` and `user` objects each time a user first interacts with a card.
-- `onCardComple`: Callback function that is called with `card` and `user` objects each time a user completes a card.
+- `onCardComplete`: Callback function that is called with `card` and `user` objects each time a user completes a card.
+- `onChoiceSelection`: Callback function that is called with `card`, `user` and `choice` objects each time a user selects a choice when interacting with a card.
