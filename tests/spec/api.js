@@ -1,4 +1,4 @@
- /*global Plyfe */
+/*global Plyfe */
 describe('Api', function() {
   'use strict';
 
@@ -66,9 +66,6 @@ describe('Api', function() {
 
   it('should send card, user and choice data with choiceSelection', function(done) {
     Plyfe.onChoiceSelection = function(card, user, choice) {
-      expect(card).to.not.be(null);
-      expect(user).to.not.be(null);
-      expect(choice).to.not.be(null);
       expect(card.id).to.be(1);
       expect(card.type).to.be('trivia_challenge');
       expect(user.id).to.be(1);
@@ -89,9 +86,6 @@ describe('Api', function() {
 
   it('should send default data with choiceSelection', function(done) {
     Plyfe.onChoiceSelection = function(card, user, choice) {
-      expect(card).to.not.be(null);
-      expect(user).to.not.be(null);
-      expect(choice).to.not.be(null);
       expect(card.id).to.be(0);
       expect(card.type).to.be('no_type');
       expect(user.id).to.be(0);
