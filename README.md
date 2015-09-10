@@ -14,7 +14,7 @@ Examples
 On [plyfe.com](http://plyfe.com/) there are [examples of live cards](http://plyfe.com/showcase) that you can build using the card builder. Here is an example of the HTML code that you would put on your site to load a trivia card.
 
 ```html
-<script src="//d2hlj83egq3ows.cloudfront.net/components/plyfe-widgets-bootstrap/dist/plyfe-widgets-bootstrap-v1.1.min.js"></script>
+<script src="//d2hlj83egq3ows.cloudfront.net/components/plyfe-widgets-bootstrap/dist/plyfe-widgets-bootstrap-v1.#.min.js"></script>
 <div class="plyfe-widget" data-slot="S8d"></div>
 ```
 
@@ -26,8 +26,18 @@ Passing an external custom id through slot codes is support by adding the follow
 `data-custom-id="#{custom_id}`
 
 ```html
-<script src="//d2hlj83egq3ows.cloudfront.net/components/plyfe-widgets-bootstrap/dist/plyfe-widgets-bootstrap-v1.1.min.js"></script>
+<script src="//d2hlj83egq3ows.cloudfront.net/components/plyfe-widgets-bootstrap/dist/plyfe-widgets-bootstrap-v1.#.min.js"></script>
 <div class="plyfe-widget" data-slot="S8d" data-custom-id="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"></div>
+```
+
+An click tracker id can be passed to the cards through the slot embed code that will be ultimately sent with all external links.
+Passing an external click tracker id through slot codes is support by adding the following,
+
+`data-click-tracker-id="#{click_tracker_id}`
+
+```html
+<script src="//d2hlj83egq3ows.cloudfront.net/components/plyfe-widgets-bootstrap/dist/plyfe-widgets-bootstrap-v1.#.min.js"></script>
+<div class="plyfe-widget" data-slot="S8d" data-click-tracker-id="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"></div>
 ```
 
 API
