@@ -110,6 +110,11 @@ define(function(require) {
       params.custom_id = customId;
     }
 
+    var clickTrackerId = utils.dataAttr(el, 'click-tracker-id');
+    if(clickTrackerId) {
+      params.click_tracker_id = clickTrackerId;
+    }
+
     var url = utils.buildUrl(scheme, domain, port, path.join('/'), params);
 
     var iframeName = 'plyfe-' + (++widgetCount);

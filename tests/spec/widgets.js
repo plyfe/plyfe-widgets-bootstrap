@@ -48,4 +48,18 @@ describe('Widget created', function() {
     expect(iframe).to.not.be(null);
     expect(iframe.src).to.be('https://plyfe.me/s/5?custom_id=5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8');
   });
+
+  // NOTE: depends on Plyfe.createWidgets() being called above.
+  it('should have found a custom URL for widget #7', function() {
+    var iframe = document.querySelector('#widget-7 > iframe');
+    expect(iframe).to.not.be(null);
+    expect(iframe.src).to.be('http://localhost/w/rd/1?transparent=true&click_tracker_id=5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8');
+  });
+
+  // NOTE: depends on Plyfe.createWidgets() being called above.
+  it('should have the right URL for widget #8', function() {
+    var iframe = document.querySelector('#widget-8 > iframe');
+    expect(iframe).to.not.be(null);
+    expect(iframe.src).to.be('https://plyfe.me/s/5?click_tracker_id=5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8');
+  });
 });
